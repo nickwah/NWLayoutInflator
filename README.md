@@ -11,7 +11,7 @@ A project that lets you create UIView subclasses with XML. If you have a file na
 </LayoutView>
 ```
 
-![Screen shot of example xml](https://github.com/nickwah/NWLayoutInflator/testLayoutExample.png)
+![Screen shot of example xml](https://github.com/nickwah/NWLayoutInflator/blob/master/testLayoutExample.png)
 
 In your viewcontroller you can inflate this into a UIView hierarchy:
 
