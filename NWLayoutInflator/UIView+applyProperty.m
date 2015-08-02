@@ -82,4 +82,21 @@
     }
 }
 
+- (void)apply_numberOfLines:(NSString*)value layoutView:(NWLayoutView*)layoutView {
+    if ([self respondsToSelector:@selector(setNumberOfLines:)]) {
+        [((UILabel*)self) setNumberOfLines:[value intValue]];
+    }
+}
+
+- (void)apply_onclick:(NSString*)value layoutView:(NWLayoutView*)layoutView {
+    NSLog(@"onclick call %@ on delegate %@", value, layoutView.delegate);
+    if ([self respondsToSelector:@selector(addTarget:action:forControlEvents:)]) {
+        [((UIButton*)self) addTarget:layoutView.delegate action:NSSelectorFromString(value) forControlEvents:UIControlEventTouchUpInside];
+    } else {
+        self.userInteractionEnabled = YES;
+        UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:layoutView.delegate action:NSSelectorFromString(value)];
+        [self addGestureRecognizer:tapRecognizer];
+    }
+}
+
 @end

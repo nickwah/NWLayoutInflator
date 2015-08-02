@@ -11,9 +11,12 @@
 @interface NWLayoutView : UIView
 
 @property (strong, nonatomic) NSString* layoutName;
+@property (weak, nonatomic) id delegate;
 
 - (instancetype)initWithFrame:(CGRect)frame;
 - (instancetype)initWithLayout:(NSString*)layoutName;
+- (instancetype)initWithLayout:(NSString*)layoutName andFrame:(CGRect)frame;
+- (instancetype)initWithLayout:(NSString*)layoutName andFrame:(CGRect)frame andDelegate:(id)delegate;
 
 - (void)parseLayout;
 - (UIView*)findViewById:(NSString*)name;

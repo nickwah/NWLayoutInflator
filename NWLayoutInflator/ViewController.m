@@ -13,14 +13,19 @@
 
 @end
 
-@implementation ViewController
+@implementation ViewController {
+    NWLayoutView *_layoutView;
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
-    NWLayoutView *view = [[NWLayoutView alloc] initWithLayout:@"testLayout"];
-    view.frame = self.view.bounds;
-    [self.view addSubview:view];
+    _layoutView = [[NWLayoutView alloc] initWithLayout:@"testLayout" andFrame:self.view.bounds andDelegate:self];
+    [self.view addSubview:_layoutView];
+}
+
+- (void)moveFrame {
+    _layoutView.frame = CGRectMake(120, 20, 200, 200);
 }
 
 - (void)didReceiveMemoryWarning {

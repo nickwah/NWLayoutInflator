@@ -17,7 +17,8 @@ static NSSet *_layoutKeys;
 static NSMutableDictionary *_namedColors;
 
 @implementation NWLayoutView {
-    NSMutableDictionary *_childrenById;
+    NSMutableDictionary *_childrenById; // NSString -> UIView
+    NSMutableArray *_allNodes; // array of nsdictionaries, each dict has attributes and @"node"
 }
 
 @synthesize layoutName = _layoutName;
@@ -31,6 +32,7 @@ static NSMutableDictionary *_namedColors;
 
 - (void)initialize {
     _childrenById = [NSMutableDictionary dictionary];
+    _allNodes = [NSMutableArray array];
     if (!_cachedXML) {
         _cachedXML = [NSMutableDictionary dictionary];
     }
@@ -52,6 +54,20 @@ static NSMutableDictionary *_namedColors;
     }
     return self;
 }
+
+- (instancetype)initWithLayout:(NSString*)layoutName andFrame:(CGRect)frame {
+    return [self initWithLayout:layoutName andFrame:frame andDelegate:nil];
+}
+
+- (instancetype)initWithLayout:(NSString*)layoutName andFrame:(CGRect)frame andDelegate:(id)delegate {
+    if (self = [self initWithFrame:frame]) {
+        _layoutName = layoutName;
+        self.delegate = delegate;
+        [self parseLayout];
+    }
+    return self;
+}
+
 
 - (UIView*)findViewById:(NSString*)name {
     return _childrenById[name];
@@ -106,9 +122,10 @@ static NSMutableDictionary *_namedColors;
         root = [NSDictionary dictionaryWithXMLString:xmlLayout];
         _parsedCache[_layoutName] = root;
     }
+    [_allNodes addObject:@{@"view": self, @"attributes": [root attributes], @"root": @YES}];
     [self createAndAddChildNodes:[root childNodes] To:self];
     CGRect frame = self.frame;
-    [self applyAttributes:[root attributes] To:self];
+    [self applyAttributes:[root attributes] To:self layoutOnly:NO];
     self.frame = frame;
 }
 
@@ -118,10 +135,14 @@ static NSMutableDictionary *_namedColors;
         //NSLog(@"Adding child node with name %@", node.nodeName);
         UIView *child = [self createViewWithClass:[node nodeName]];
         [view addSubview:child];
-        [self applyAttributes:[node attributes] To:child];
+        [self applyAttributes:[node attributes] To:child layoutOnly:NO];
+        [_allNodes addObject:@{@"view": child, @"attributes": [node attributes]}];
+        if ([node childNodes].count) {
+            [self createAndAddChildNodes:node.childNodes To:view];
+        }
     }
 }
-- (void)applyAttributes:(NSDictionary*)attributes To:(UIView*)view {
+- (void)applyAttributes:(NSDictionary*)attributes To:(UIView*)view layoutOnly:(BOOL)layoutOnly {
     //NSLog(@"Applying %lu attributes to view", (unsigned long)attributes.count);
     CGRect frame = CGRectMake(0,0,0,0);
     UIEdgeInsets margin = UIEdgeInsetsMake(0, 0, 0, 0);
@@ -156,7 +177,7 @@ static NSMutableDictionary *_namedColors;
                 CGFloat floatVal = [value floatValue];
                 margin = UIEdgeInsetsMake(floatVal, floatVal, floatVal, floatVal);
             }
-        } else {
+        } else if (!layoutOnly) {
             [view applyProperty:key value:value layoutView:self];
         }
     }
@@ -197,8 +218,21 @@ static NSMutableDictionary *_namedColors;
     }
     if (margin.top)  frame.origin.y += margin.top;
     if (margin.left) frame.origin.x += margin.left;
-    view.frame = frame;
+    if (view == self) {
+        [super setFrame:frame];
+    } else {
+        view.frame = frame;
+    }
     //NSLog(@"View.width =%f height=%f", view.frame.size.width, view.frame.size.height);
+}
+
+- (void)setFrame:(CGRect)frame {
+    [super setFrame:frame];
+    // TODO: we have to go through all the nodes and
+    for (NSDictionary *node in _allNodes) {
+        if (node[@"root"]) continue;
+        [self applyAttributes:node[@"attributes"] To:node[@"view"] layoutOnly:YES];
+    }
 }
 
 - (UIView*)createViewWithClass:(NSString*)className {
