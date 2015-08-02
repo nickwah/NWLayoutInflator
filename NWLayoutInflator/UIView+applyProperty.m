@@ -19,6 +19,14 @@
     }
 }
 
+- (UIColor *)colorNamed:(NSString*)name {
+    if ([name hasPrefix:@"#"]) {
+        return [UIColor colorFromHex:name];
+    } else {
+        return [NWLayoutView namedColor:name];
+    }
+}
+
 - (void)apply_text:(NSString*)value layoutView:(NWLayoutView*)layoutView {
     if ([self respondsToSelector:@selector(setText:)]) {
         [(UILabel*)self setText:value];
@@ -28,7 +36,7 @@
 }
 
 - (void)apply_textColor:(NSString*)value layoutView:(NWLayoutView*)layoutView {
-    UIColor *color = [UIColor colorFromHex:value];
+    UIColor *color = [self colorNamed:value];
     if ([self respondsToSelector:@selector(setTextColor:)]) {
         [(UILabel*)self setTextColor:color];
     } else if ([self respondsToSelector:@selector(setTitleColor:forState:)]) {
@@ -59,10 +67,10 @@
 }
 
 -(void)apply_backgroundColor:(NSString*)value layoutView:(NWLayoutView*)layoutView {
-    self.backgroundColor = [UIColor colorFromHex:value];
+    self.backgroundColor = [self colorNamed:value];
 }
 - (void)apply_borderColor:(NSString*)value layoutView:(NWLayoutView*)layoutView {
-    self.layer.borderColor = [[UIColor colorFromHex:value] CGColor];
+    self.layer.borderColor = [[self colorNamed:value] CGColor];
 }
 - (void)apply_borderWidth:(NSString*)value layoutView:(NWLayoutView*)layoutView {
     self.layer.borderWidth = [value floatValue];

@@ -14,6 +14,7 @@
 static NSMutableDictionary *_cachedXML;
 static NSMutableDictionary *_parsedCache;
 static NSSet *_layoutKeys;
+static NSMutableDictionary *_namedColors;
 
 @implementation NWLayoutView {
     NSMutableDictionary *_childrenById;
@@ -38,6 +39,9 @@ static NSSet *_layoutKeys;
     }
     if (!_layoutKeys) {
         _layoutKeys = [NSSet setWithObjects:@"id", @"width", @"height", @"x", @"y", @"alignLeft", @"alignTop", @"margin", @"marginLeft", @"marginTop", @"marginRight", @"marginBottom", nil];
+    }
+    if (!_namedColors) {
+        _namedColors = [NSMutableDictionary dictionaryWithObjectsAndKeys:[UIColor whiteColor], @"white", [UIColor blackColor], @"black", nil];
     }
 }
 
@@ -205,6 +209,15 @@ static NSSet *_layoutKeys;
     // TODO: for any special cases, handle them here
     return view;
 }
+
++ (UIColor*)namedColor:(NSString*)name {
+    return _namedColors[name];
+}
+
++ (void)setColor:(UIColor*)color forName:(NSString*)name {
+    _namedColors[name] = color;
+}
+
 
 /*
 // Only override drawRect: if you perform custom drawing.

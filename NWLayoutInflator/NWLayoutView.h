@@ -19,5 +19,7 @@
 - (UIView*)findViewById:(NSString*)name;
 
 + (void)setXML:(NSString*)xml forName:(NSString*)name;
++ (UIColor*)namedColor:(NSString*)name;
++ (void)setColor:(UIColor*)color forName:(NSString*)name;
 
 @end

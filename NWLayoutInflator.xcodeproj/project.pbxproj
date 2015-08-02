@@ -20,8 +20,6 @@
 		01B34AD01B6D669D00995C02 /* UIColor+hexString.m in Sources */ = {isa = PBXBuildFile; fileRef = 01B34ACF1B6D669D00995C02 /* UIColor+hexString.m */; };
 		01B34AD51B6D69D700995C02 /* camera_button_blue.png in Resources */ = {isa = PBXBuildFile; fileRef = 01B34AD11B6D69D700995C02 /* camera_button_blue.png */; };
 		01B34AD61B6D69D700995C02 /* camera_button_blue@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 01B34AD21B6D69D700995C02 /* camera_button_blue@2x.png */; };
-		01B34AD71B6D69D700995C02 /* camera_button_blue2.png in Resources */ = {isa = PBXBuildFile; fileRef = 01B34AD31B6D69D700995C02 /* camera_button_blue2.png */; };
-		01B34AD81B6D69D700995C02 /* camera_button_blue2@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 01B34AD41B6D69D700995C02 /* camera_button_blue2@2x.png */; };
 		01B34ADA1B6D6E3F00995C02 /* testLayout.xml in Resources */ = {isa = PBXBuildFile; fileRef = 01B34AD91B6D6E3F00995C02 /* testLayout.xml */; };
 /* End PBXBuildFile section */
 
@@ -59,8 +57,6 @@
 		01B34ACF1B6D669D00995C02 /* UIColor+hexString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+hexString.m"; sourceTree = "<group>"; };
 		01B34AD11B6D69D700995C02 /* camera_button_blue.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = camera_button_blue.png; sourceTree = "<group>"; };
 		01B34AD21B6D69D700995C02 /* camera_button_blue@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "camera_button_blue@2x.png"; sourceTree = "<group>"; };
-		01B34AD31B6D69D700995C02 /* camera_button_blue2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = camera_button_blue2.png; sourceTree = "<group>"; };
-		01B34AD41B6D69D700995C02 /* camera_button_blue2@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "camera_button_blue2@2x.png"; sourceTree = "<group>"; };
 		01B34AD91B6D6E3F00995C02 /* testLayout.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = testLayout.xml; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -106,8 +102,6 @@
 				01B34AD91B6D6E3F00995C02 /* testLayout.xml */,
 				01B34AD11B6D69D700995C02 /* camera_button_blue.png */,
 				01B34AD21B6D69D700995C02 /* camera_button_blue@2x.png */,
-				01B34AD31B6D69D700995C02 /* camera_button_blue2.png */,
-				01B34AD41B6D69D700995C02 /* camera_button_blue2@2x.png */,
 				01B34AC51B6C359800995C02 /* XMLDictionary.h */,
 				01B34AC61B6C359800995C02 /* XMLDictionary.m */,
 				01B34AA01B6C2FB100995C02 /* AppDelegate.h */,
@@ -239,9 +233,7 @@
 				01B34AA81B6C2FB100995C02 /* Main.storyboard in Resources */,
 				01B34ADA1B6D6E3F00995C02 /* testLayout.xml in Resources */,
 				01B34AAD1B6C2FB100995C02 /* LaunchScreen.xib in Resources */,
-				01B34AD81B6D69D700995C02 /* camera_button_blue2@2x.png in Resources */,
 				01B34AAA1B6C2FB100995C02 /* Images.xcassets in Resources */,
-				01B34AD71B6D69D700995C02 /* camera_button_blue2.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
