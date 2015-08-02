@@ -71,7 +71,7 @@ static NSSet *_layoutKeys;
 + (NSString*)getXMLforName:(NSString *)name {
     NSString *xmlLayout = _cachedXML[name];
     if (!xmlLayout) {
-        NSLog(@"Loading xml for %@ from disk", name);
+        //NSLog(@"Loading xml for %@ from disk", name);
         NSString* filePath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
         NSString* fileName = [NSString stringWithFormat:@"%@.xml", name];
         NSString* fileAtPath = [filePath stringByAppendingPathComponent:fileName];
@@ -111,14 +111,14 @@ static NSSet *_layoutKeys;
 - (void) createAndAddChildNodes:(NSArray*)nodes To:(UIView*)view {
     if (!nodes) return;
     for (NSDictionary* node in nodes) {
-        NSLog(@"Adding child node with name %@", node.nodeName);
+        //NSLog(@"Adding child node with name %@", node.nodeName);
         UIView *child = [self createViewWithClass:[node nodeName]];
         [view addSubview:child];
         [self applyAttributes:[node attributes] To:child];
     }
 }
 - (void)applyAttributes:(NSDictionary*)attributes To:(UIView*)view {
-    NSLog(@"Applying %lu attributes to view", (unsigned long)attributes.count);
+    //NSLog(@"Applying %lu attributes to view", (unsigned long)attributes.count);
     CGRect frame = CGRectMake(0,0,0,0);
     UIEdgeInsets margin = UIEdgeInsetsMake(0, 0, 0, 0);
     for (NSString* key in attributes) {

@@ -32,7 +32,6 @@
                      blue:((CGFloat) (hexint & 0xFF))/255
                     alpha:(hexStr.length >= 8) ? (CGFloat)((hexint & 0xFF000000) >> 24)/255.0f : 1.0f];
     
-    NSLog(@"Made color with alpha %f", (hexStr.length >= 8) ? (CGFloat)((hexint & 0xFF000000) >> 24)/255.0f : 1.0f);
     return color;
 }
 
