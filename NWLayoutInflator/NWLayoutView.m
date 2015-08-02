@@ -249,7 +249,14 @@ static NSMutableDictionary *_namedColors;
 }
 
 + (void)setColor:(UIColor*)color forName:(NSString*)name {
+    if (!_namedColors) _namedColors = [NSMutableDictionary dictionary];
     _namedColors[name] = color;
+}
+
++ (void)addColorsFromDictionary:(NSDictionary*)colors {
+    for (NSString *name in colors) {
+        [self setColor:[UIColor colorFromHex:colors[name]] forName:name];
+    }
 }
 
 

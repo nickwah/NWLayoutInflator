@@ -19,7 +19,10 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view, typically from a nib.
+
+    [NWLayoutView addColorsFromDictionary:
+        @{@"orange": @"#FABA43"}];
+
     _layoutView = [[NWLayoutView alloc] initWithLayout:@"testLayout" andFrame:self.view.bounds andDelegate:self];
     [self.view addSubview:_layoutView];
 }
