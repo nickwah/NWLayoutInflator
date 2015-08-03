@@ -4,10 +4,10 @@ A project that lets you create UIView subclasses with XML. If you have a file na
 
 ```xml
 <LayoutView>
-<UILabel text="Hello World!" id="label" x="20" y="50" sizeToFit="1" backgroundColor="#FFE0A0" />
-<UIButton id="clickme" onclick="moveFrame" text="Click Me" textColor="white" cornerRadius="5" below="label" alignLeft="label" sizeToFit="1" backgroundColor="#40FF0000" marginTop="5" borderColor="black" borderWidth="1" />
-<UILabel id="ontheright" text="on the right" sizeToFit="1" textColor="#D030A0" toRightOf="clickme" alignTop="clickme" marginLeft="10" />
-<UIImageView id="image" below="ontheright" alignLeft="ontheright" width="50" height="50" imageNamed="camera_button_blue" />
+  <UILabel text="Hello World!" id="label" x="20" y="50" sizeToFit="1" backgroundColor="#FFE0A0" />
+  <UIButton id="clickme" onclick="moveFrame" text="Click Me" textColor="white" cornerRadius="5" below="label" alignLeft="label" sizeToFit="1" backgroundColor="#40FF0000" marginTop="5" borderColor="black" borderWidth="1" />
+  <UILabel id="ontheright" text="on the right" sizeToFit="1" textColor="#D030A0" toRightOf="clickme" alignTop="clickme" marginLeft="10" />
+  <UIImageView id="image" below="ontheright" alignLeft="ontheright" width="50" height="50" imageNamed="camera_button_blue" />
 </LayoutView>
 ```
 
@@ -34,3 +34,17 @@ In your viewcontroller you can inflate this into a UIView hierarchy:
 
 You can also grab a specific view from the hierarchy by the id: `(UIButton*)[_layoutView findViewById:@"clickme"]`
 
+Note: if you're using AFNetworking, you can also load a `UIImageView` with an image URL:
+```xml
+  <UIImageView imageWithURL="http://my.example.com/image.png" />
+```
+
+You can nest UIViews:
+```xml
+<UIView id="container" width="150" height="100">
+  <UILabel x="0" sizeToFit="1" text="Left side" />
+  <UILabel right="0" sizeToFit="1" text="Right side" />
+</UIView>
+```
+
+Warning: I don't think sizeToFit works on containers of other UIViews right now.

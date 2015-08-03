@@ -149,7 +149,7 @@ static NSMutableDictionary *_namedColors;
         [self applyAttributes:[node attributes] To:child layoutOnly:NO];
         [_allNodes addObject:@{@"view": child, @"attributes": [node attributes]}];
         if ([node childNodes].count) {
-            [self createAndAddChildNodes:node.childNodes To:view];
+            [self createAndAddChildNodes:node.childNodes To:child];
         }
     }
 }
