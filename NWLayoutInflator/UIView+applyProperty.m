@@ -82,6 +82,12 @@
     }
 }
 
+- (void)apply_imageWithURL:(NSString*)value layoutView:(NWLayoutView*)layoutView {
+    if ([self respondsToSelector:@selector(setImageWithURL:)]) {
+        [self performSelector:@selector(setImageWithURL:) withObject:[NSURL URLWithString:value]];
+    }
+}
+
 - (void)apply_numberOfLines:(NSString*)value layoutView:(NWLayoutView*)layoutView {
     if ([self respondsToSelector:@selector(setNumberOfLines:)]) {
         [((UILabel*)self) setNumberOfLines:[value intValue]];
@@ -96,6 +102,16 @@
         self.userInteractionEnabled = YES;
         UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:layoutView.delegate action:NSSelectorFromString(value)];
         [self addGestureRecognizer:tapRecognizer];
+    }
+}
+
+- (void)apply_activityIndicatorViewStyle:(NSString*)value layoutView:(NWLayoutView*)layoutView {
+    if ([self respondsToSelector:@selector(setActivityIndicatorViewStyle:)]) {
+        UIActivityIndicatorViewStyle style;
+        if ([value isEqualToString:@"white"]) style = UIActivityIndicatorViewStyleWhite;
+        else if ([value isEqualToString:@"whitelarge"]) style = UIActivityIndicatorViewStyleWhiteLarge;
+        else if ([value isEqualToString:@"gray"]) style = UIActivityIndicatorViewStyleGray;
+        ((UIActivityIndicatorView*)self).activityIndicatorViewStyle = style;
     }
 }
 

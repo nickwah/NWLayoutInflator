@@ -88,6 +88,17 @@ static NSMutableDictionary *_namedColors;
     [[xml dataUsingEncoding:NSUTF8StringEncoding] writeToFile:fileAtPath atomically:NO];
 }
 
++ (void)revertXMLforName:(NSString*)name {
+    NSString* filePath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+    NSString* fileName = [NSString stringWithFormat:@"%@.xml", name];
+    NSString* fileAtPath = [filePath stringByAppendingPathComponent:fileName];
+    
+    if ([[NSFileManager defaultManager] fileExistsAtPath:fileAtPath]) {
+        NSError *error;
+        [[NSFileManager defaultManager] removeItemAtPath:fileAtPath error:&error];
+    }
+}
+
 + (NSString*)getXMLforName:(NSString *)name {
     NSString *xmlLayout = _cachedXML[name];
     if (!xmlLayout) {
@@ -259,6 +270,20 @@ static NSMutableDictionary *_namedColors;
     }
 }
 
+-(void)addSubview:(UIView *)view {
+    if ([view isKindOfClass:[NWLayoutView class]]) {
+        NSDictionary *otherChildren = ((NWLayoutView*)view)->_childrenById;
+        for (NSString* name in otherChildren) {
+            if (!_childrenById[name]) _childrenById[name] = otherChildren[name];
+        }
+    }
+    [super addSubview:view];
+}
+
+- (void)addSubview:(UIView *)view withId:(NSString*)name {
+    [self addSubview:view];
+    _childrenById[name] = view;
+}
 
 /*
 // Only override drawRect: if you perform custom drawing.
