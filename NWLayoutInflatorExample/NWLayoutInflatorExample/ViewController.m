@@ -7,7 +7,7 @@
 //
 
 #import "ViewController.h"
-#import "NWLayoutView.h"
+#import <NWLayoutInflator/NWLayoutInflator.h>
 
 @interface ViewController ()
 

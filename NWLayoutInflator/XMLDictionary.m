@@ -475,10 +475,10 @@
         [nodes addObject:[NSString stringWithFormat:@"<!--%@-->", [comment XMLEncodedString]]];
 	}
     
-    NSDictionary *childNodes = [self childNodes];
-	for (NSString *key in childNodes)
+    NSArray *childNodes = [self childNodes];
+	for (NSDictionary* child in childNodes)
 	{
-		[nodes addObject:[XMLDictionaryParser XMLStringForNode:childNodes[key] withNodeName:key]];
+		[nodes addObject:[XMLDictionaryParser XMLStringForNode:child withNodeName:child.nodeName]];
 	}
 	
     NSString *text = [self innerText];

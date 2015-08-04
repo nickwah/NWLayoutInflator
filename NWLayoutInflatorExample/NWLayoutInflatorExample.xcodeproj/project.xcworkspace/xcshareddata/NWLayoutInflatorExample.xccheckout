@@ -5,16 +5,16 @@
 	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
 	<false/>
 	<key>IDESourceControlProjectIdentifier</key>
-	<string>610D2ECC-90EA-412F-9B4B-86A10E20F4BA</string>
+	<string>EFBC1E1C-29C3-4F38-9D8F-EDEB4C6978A6</string>
 	<key>IDESourceControlProjectName</key>
-	<string>project</string>
+	<string>NWLayoutInflatorExample</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
 		<key>462CEA79483CC50191B21745FE1CD66C5EB7066E</key>
 		<string>https://github.com/nickwah/NWLayoutInflator.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>NWLayoutInflator/NWLayoutInflator.xcodeproj/project.xcworkspace</string>
+	<string>NWLayoutInflatorExample/NWLayoutInflatorExample.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>462CEA79483CC50191B21745FE1CD66C5EB7066E</key>
@@ -34,7 +34,7 @@
 			<key>IDESourceControlWCCIdentifierKey</key>
 			<string>462CEA79483CC50191B21745FE1CD66C5EB7066E</string>
 			<key>IDESourceControlWCCName</key>
-			<string>NWLayoutInflator</string>
+			<string>NWLayoutInflator-orig</string>
 		</dict>
 	</array>
 </dict>
