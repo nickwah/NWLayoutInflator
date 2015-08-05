@@ -218,7 +218,7 @@ static NSMutableDictionary *_namedColors;
         UIView *other = _childrenById[attributes[@"below"]];
         frame.origin.y = other.frame.origin.y + other.frame.size.height;
     } else if (attributes[@"bottom"]) {
-        frame.origin.y = [view superview].bounds.size.height - frame.size.height;
+        frame.origin.y = [view superview].bounds.size.height - frame.size.height - [attributes[@"bottom"] floatValue];
         if (margin.bottom) frame.origin.y -= margin.bottom;
     } else if (attributes[@"centerVertical"]) {
         frame.origin.y = ([view superview].bounds.size.height - frame.size.height) / 2;
@@ -231,7 +231,7 @@ static NSMutableDictionary *_namedColors;
         UIView *other = _childrenById[attributes[@"toRightOf"]];
         frame.origin.x = other.frame.origin.x + other.frame.size.width;
     } else if (attributes[@"right"]) {
-        frame.origin.x = [view superview].bounds.size.width - frame.size.width;
+        frame.origin.x = [view superview].bounds.size.width - frame.size.width - [attributes[@"right"] floatValue];
         if (margin.right) frame.origin.x -= margin.right;
     } else if (attributes[@"centerHorizontal"]) {
         frame.origin.x = ([view superview].bounds.size.width - frame.size.width) / 2;
