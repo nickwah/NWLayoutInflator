@@ -100,6 +100,7 @@ static NSMutableDictionary *_namedColors;
 }
 
 + (NSString*)getXMLforName:(NSString *)name {
+    if ([name hasPrefix:@"<"]) return name;
     NSString *xmlLayout = _cachedXML[name];
     if (!xmlLayout) {
         //NSLog(@"Loading xml for %@ from disk", name);
@@ -163,9 +164,17 @@ static NSMutableDictionary *_namedColors;
             if ([key isEqualToString:@"id"]) {
                 _childrenById[value] = view;
             } else if ([key isEqualToString:@"width"]) {
-                frame.size.width = [value floatValue];
+                if ([value hasSuffix:@"%"]) {
+                    frame.size.width = [view superview].bounds.size.width * [[value substringToIndex:value.length - 1] floatValue] / 100.0f;
+                } else {
+                    frame.size.width = [value floatValue];
+                }
             } else if ([key isEqualToString:@"height"]) {
-                frame.size.height = [value floatValue];
+                if ([value hasSuffix:@"%"]) {
+                    frame.size.height = [view superview].bounds.size.height * [[value substringToIndex:value.length - 1] floatValue] / 100.0f;
+                } else {
+                    frame.size.height = [value floatValue];
+                }
             } else if ([key isEqualToString:@"x"]) {
                 frame.origin.x = [value floatValue];
             } else if ([key isEqualToString:@"y"]) {
