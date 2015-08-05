@@ -154,6 +154,16 @@ static NSMutableDictionary *_namedColors;
         }
     }
 }
+CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal) {
+    if ([value hasSuffix:@"%"]) {
+        if (horizontal) {
+            return [view superview].bounds.size.width * [[value substringToIndex:value.length - 1] floatValue] / 100.0f;
+        } else {
+            return [view superview].bounds.size.height * [[value substringToIndex:value.length - 1] floatValue] / 100.0f;
+        }
+    }
+    return [value floatValue];
+}
 - (void)applyAttributes:(NSDictionary*)attributes To:(UIView*)view layoutOnly:(BOOL)layoutOnly {
     //NSLog(@"Applying %lu attributes to view", (unsigned long)attributes.count);
     CGRect frame = CGRectMake(0,0,0,0);
@@ -164,21 +174,13 @@ static NSMutableDictionary *_namedColors;
             if ([key isEqualToString:@"id"]) {
                 _childrenById[value] = view;
             } else if ([key isEqualToString:@"width"]) {
-                if ([value hasSuffix:@"%"]) {
-                    frame.size.width = [view superview].bounds.size.width * [[value substringToIndex:value.length - 1] floatValue] / 100.0f;
-                } else {
-                    frame.size.width = [value floatValue];
-                }
+                frame.size.width = parseValue(value, view, YES);
             } else if ([key isEqualToString:@"height"]) {
-                if ([value hasSuffix:@"%"]) {
-                    frame.size.height = [view superview].bounds.size.height * [[value substringToIndex:value.length - 1] floatValue] / 100.0f;
-                } else {
-                    frame.size.height = [value floatValue];
-                }
+                frame.size.height = parseValue(value, view, NO);
             } else if ([key isEqualToString:@"x"]) {
-                frame.origin.x = [value floatValue];
+                frame.origin.x = parseValue(value, view, YES);
             } else if ([key isEqualToString:@"y"]) {
-                frame.origin.y = [value floatValue];
+                frame.origin.y = parseValue(value, view, NO);
             } else if ([key isEqualToString:@"alignLeft"]) {
                 UIView *other = _childrenById[value];
                 frame.origin.x = other.frame.origin.x;
@@ -205,10 +207,6 @@ static NSMutableDictionary *_namedColors;
     if (attributes[@"sizeToFit"]) {
         [view sizeToFit];
         frame = view.frame;
-        if (attributes[@"width"] || attributes[@"height"]) {
-            if (attributes[@"width"]) frame.size.width = [attributes[@"width"] floatValue];
-            if (attributes[@"height"]) frame.size.height = [attributes[@"height"] floatValue];
-        }
     }
     if (attributes[@"above"]) {
         UIView *other = _childrenById[attributes[@"above"]];
@@ -218,7 +216,11 @@ static NSMutableDictionary *_namedColors;
         UIView *other = _childrenById[attributes[@"below"]];
         frame.origin.y = other.frame.origin.y + other.frame.size.height;
     } else if (attributes[@"bottom"]) {
-        frame.origin.y = [view superview].bounds.size.height - frame.size.height - [attributes[@"bottom"] floatValue];
+        if (frame.origin.y) {
+            frame.size.height = [view superview].bounds.size.height - frame.origin.y - parseValue(attributes[@"bottom"], view, NO);
+        } else {
+            frame.origin.y = [view superview].bounds.size.height - frame.size.height - parseValue(attributes[@"bottom"], view, NO);
+        }
         if (margin.bottom) frame.origin.y -= margin.bottom;
     } else if (attributes[@"centerVertical"]) {
         frame.origin.y = ([view superview].bounds.size.height - frame.size.height) / 2;
@@ -230,11 +232,16 @@ static NSMutableDictionary *_namedColors;
     } else if (attributes[@"toRightOf"]) {
         UIView *other = _childrenById[attributes[@"toRightOf"]];
         frame.origin.x = other.frame.origin.x + other.frame.size.width;
-    } else if (attributes[@"right"]) {
-        frame.origin.x = [view superview].bounds.size.width - frame.size.width - [attributes[@"right"] floatValue];
-        if (margin.right) frame.origin.x -= margin.right;
     } else if (attributes[@"centerHorizontal"]) {
         frame.origin.x = ([view superview].bounds.size.width - frame.size.width) / 2;
+    }
+    if (attributes[@"right"]) {
+        if (frame.origin.x) {
+            frame.size.width = [view superview].bounds.size.width - frame.origin.x - parseValue(attributes[@"right"], view, YES);
+        } else {
+            frame.origin.x = [view superview].bounds.size.width - frame.size.width - parseValue(attributes[@"right"], view, YES);
+            if (margin.right) frame.origin.x -= margin.right;
+        }
     }
     if (margin.top)  frame.origin.y += margin.top;
     if (margin.left) frame.origin.x += margin.left;

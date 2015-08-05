@@ -22,6 +22,13 @@
 
 + (UIColor *)colorFromHex:(NSString *)hexStr
 {
+    if (hexStr.length == 4) {
+        // I feel like there should be a faster way than this...
+        unichar char1 = [hexStr characterAtIndex:1];
+        unichar char2 = [hexStr characterAtIndex:2];
+        unichar char3 = [hexStr characterAtIndex:3];
+        hexStr = [NSString stringWithFormat:@"#%C%C%C%C%C%C", char1, char1, char2, char2, char3, char3];
+    }
     // Convert hex string to an integer
     unsigned int hexint = [UIColor intFromHexString:hexStr];
     
