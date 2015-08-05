@@ -27,6 +27,33 @@
     }
 }
 
+- (void)apply_font:(NSString*)value layoutView:(NWLayoutView*)layoutView {
+    UIFont *font;
+    if (![value containsString:@":"]) {
+        font = [UIFont systemFontOfSize:[value floatValue]];
+    } else {
+        NSString *valueFromColon = [value substringFromIndex:[value rangeOfString:@":"].location + 1];
+        if ([value hasPrefix:@"fontWithName:'"]) {
+            NSString *sizeText = [valueFromColon substringFromIndex:[valueFromColon rangeOfString:@":"].location + 1];
+            NSString *nameText = [valueFromColon substringWithRange:NSMakeRange(1, [valueFromColon rangeOfString:@"'" options:0 range:NSMakeRange(1, valueFromColon.length - 1)].location - 1)];
+            font = [UIFont fontWithName:nameText size:[sizeText floatValue]];
+        } else if ([value hasPrefix:@"bold"]) {
+            font = [UIFont boldSystemFontOfSize:[valueFromColon floatValue]];
+        } else if ([value hasPrefix:@"italic"]) {
+            font = [UIFont italicSystemFontOfSize:[valueFromColon floatValue]];
+        } else {
+            font = [UIFont systemFontOfSize:[valueFromColon floatValue]];
+        }
+    }
+    if (font) {
+        if ([self respondsToSelector:@selector(titleLabel)]) {
+            ((UIButton*)self).titleLabel.font = font;
+        } else if ([self respondsToSelector:@selector(setFont:)]) {
+            ((UILabel*)self).font = font;
+        }
+    }
+}
+
 - (void)apply_text:(NSString*)value layoutView:(NWLayoutView*)layoutView {
     if ([self respondsToSelector:@selector(setText:)]) {
         [(UILabel*)self setText:value];
