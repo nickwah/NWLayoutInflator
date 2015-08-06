@@ -111,6 +111,9 @@
 
 - (void)apply_imageWithURL:(NSString*)value layoutView:(NWLayoutView*)layoutView {
     if ([self respondsToSelector:@selector(setImageWithURL:)]) {
+        if ([value hasPrefix:@"//"]) {
+            value = [NSString stringWithFormat:@"http:%@", value];
+        }
         [self performSelector:@selector(setImageWithURL:) withObject:[NSURL URLWithString:value]];
     }
 }
@@ -118,6 +121,12 @@
 - (void)apply_numberOfLines:(NSString*)value layoutView:(NWLayoutView*)layoutView {
     if ([self respondsToSelector:@selector(setNumberOfLines:)]) {
         [((UILabel*)self) setNumberOfLines:[value intValue]];
+    }
+}
+
+- (void)apply_tintColor:(NSString*)value layoutView:(NWLayoutView*)layoutView {
+    if ([self respondsToSelector:@selector(setTintColor:)]) {
+        [((UIImageView*)self) setTintColor:[self colorNamed:value]];
     }
 }
 
@@ -138,6 +147,16 @@
         else if ([value isEqualToString:@"whitelarge"]) style = UIActivityIndicatorViewStyleWhiteLarge;
         else if ([value isEqualToString:@"gray"]) style = UIActivityIndicatorViewStyleGray;
         ((UIActivityIndicatorView*)self).activityIndicatorViewStyle = style;
+    }
+}
+
+- (void)apply_tag:(NSString*)value layoutView:(NWLayoutView*)layoutView {
+    self.tag = [value intValue];
+}
+
+- (void)apply_scrollEnabled:(NSString*)value layoutView:(NWLayoutView*)layoutView {
+    if ([self respondsToSelector:@selector(setScrollEnabled:)]) {
+        ((UIScrollView*)self).scrollEnabled = [value intValue] ? YES : NO;
     }
 }
 

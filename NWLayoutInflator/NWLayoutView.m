@@ -152,6 +152,14 @@ static NSMutableDictionary *_namedColors;
         if ([node childNodes].count) {
             [self createAndAddChildNodes:node.childNodes To:child];
         }
+        if ([node.nodeName isEqualToString:@"UIScrollView"]) {
+            CGFloat maxX = 0, maxY = 0;
+            for (UIView* subview in child.subviews) {
+                maxX = fmaxf(maxX, CGRectGetMaxX(subview.frame));
+                maxY = fmaxf(maxY, CGRectGetMaxY(subview.frame));
+            }
+            ((UIScrollView*)child).contentSize = CGSizeMake(maxX, maxY);
+        }
     }
 }
 CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal) {
