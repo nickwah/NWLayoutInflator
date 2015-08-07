@@ -176,4 +176,39 @@
     control.selectedSegmentIndex = 0;
 }
 
+- (void)apply_placeholder:(NSString*)value layoutView:(NWLayoutView*)layoutView {
+    if ([self respondsToSelector:@selector(setPlaceholder:)]) {
+        ((UITextField*)self).placeholder = value;
+    }
+}
+
+- (void)apply_keyboardType:(NSString*)value layoutView:(NWLayoutView*)layoutView {
+    if ([self respondsToSelector:@selector(setKeyboardType:)]) {
+        UIKeyboardType keyboardType = ((UITextField*)self).keyboardType;
+        value = [value lowercaseString];
+        if ([value isEqualToString:@"alphabet"]) {
+            keyboardType = UIKeyboardTypeAlphabet;
+        } else if ([value isEqualToString:@"decimalpad"]) {
+            keyboardType = UIKeyboardTypeDecimalPad;
+        } else if ([value isEqualToString:@"emailaddress"]) {
+            keyboardType = UIKeyboardTypeEmailAddress;
+        } else if ([value isEqualToString:@"namephonepad"]) {
+            keyboardType = UIKeyboardTypeNamePhonePad;
+        } else if ([value isEqualToString:@"numberpad"]) {
+            keyboardType = UIKeyboardTypeNumberPad;
+        } else if ([value isEqualToString:@"numbersandpunctuation"]) {
+            keyboardType = UIKeyboardTypeNumbersAndPunctuation;
+        } else if ([value isEqualToString:@"phonepad"]) {
+            keyboardType = UIKeyboardTypePhonePad;
+        } else if ([value isEqualToString:@"twitter"]) {
+            keyboardType = UIKeyboardTypeTwitter;
+        } else if ([value isEqualToString:@"url"]) {
+            keyboardType = UIKeyboardTypeURL;
+        } else if ([value isEqualToString:@"websearch"]) {
+            keyboardType = UIKeyboardTypeWebSearch;
+        }
+        ((UITextField*)self).keyboardType = keyboardType;
+    }
+}
+
 @end

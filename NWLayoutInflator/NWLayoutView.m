@@ -159,24 +159,11 @@ static NSMutableDictionary *_namedColors;
         if ([node childNodes].count) {
             [self createAndAddChildNodes:node.childNodes To:child];
             if (node.attributes[@"sizeToFit"]) {
-                CGFloat maxX = 0, maxY = 0;
-                for (UIView* subview in child.subviews) {
-                    maxX = fmaxf(maxX, CGRectGetMaxX(subview.frame));
-                    maxY = fmaxf(maxY, CGRectGetMaxY(subview.frame));
-                }
-                CGRect frame = child.frame;
-                if (!frame.size.width) frame.size.width = maxX;
-                if (!frame.size.height) frame.size.height = maxY;
-                child.frame = frame;
+                [self sizeViewToFit:child];
             }
         }
         if ([node.nodeName isEqualToString:@"UIScrollView"]) {
-            CGFloat maxX = 0, maxY = 0;
-            for (UIView* subview in child.subviews) {
-                maxX = fmaxf(maxX, CGRectGetMaxX(subview.frame));
-                maxY = fmaxf(maxY, CGRectGetMaxY(subview.frame));
-            }
-            ((UIScrollView*)child).contentSize = CGSizeMake(maxX, maxY);
+            [self fixContentSize:(UIScrollView*)child];
         }
         if ([node.nodeName isEqualToString:@"UISegmentedControl"]) {
             [_segmentedControls addObject:child];
@@ -234,9 +221,10 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal) {
         }
     }
     view.frame = frame;
+    BOOL sizeChanged = NO;
     if (attributes[@"sizeToFit"]) {
         CGSize origSize = frame.size;
-        [view sizeToFit];
+        [self sizeViewToFit:view];
         frame = view.frame;
         if (origSize.width) frame.size.width = origSize.width;
         if (origSize.height) frame.size.height = origSize.height;
@@ -251,6 +239,7 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal) {
     } else if (attributes[@"bottom"]) {
         if (frame.origin.y) {
             frame.size.height = [view superview].bounds.size.height - frame.origin.y - parseValue(attributes[@"bottom"], view, NO);
+            sizeChanged = YES;
         } else {
             frame.origin.y = [view superview].bounds.size.height - frame.size.height - parseValue(attributes[@"bottom"], view, NO);
         }
@@ -271,6 +260,7 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal) {
     if (attributes[@"right"]) {
         if (frame.origin.x) {
             frame.size.width = [view superview].bounds.size.width - frame.origin.x - parseValue(attributes[@"right"], view, YES);
+            sizeChanged = YES;
         } else {
             frame.origin.x = [view superview].bounds.size.width - frame.size.width - parseValue(attributes[@"right"], view, YES);
             if (margin.right) frame.origin.x -= margin.right;
@@ -278,12 +268,19 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal) {
     }
     if (margin.top)  frame.origin.y += margin.top;
     if (margin.left) frame.origin.x += margin.left;
+    if (attributes[@"sizeToFit"] && sizeChanged) {
+        view.frame = frame;
+        CGSize origSize = frame.size;
+        [self sizeViewToFit:view];
+        frame = view.frame;
+        if (origSize.width) frame.size.width = origSize.width;
+        if (origSize.height) frame.size.height = origSize.height;
+    }
     if (view == self) {
         [super setFrame:frame];
     } else {
         view.frame = frame;
     }
-    //NSLog(@"View.width =%f height=%f", view.frame.size.width, view.frame.size.height);
 }
 
 - (void)setFrame:(CGRect)frame {
@@ -292,20 +289,34 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal) {
     for (NSDictionary *node in _allNodes) {
         if (node[@"root"]) continue;
         [self applyAttributes:node[@"attributes"] To:node[@"view"] layoutOnly:YES];
-        if (node[@"attributes"][@"sizeToFit"]) {
-            UIView *child = node[@"view"];
-            CGFloat maxX = 0, maxY = 0;
-            for (UIView* subview in child.subviews) {
-                maxX = fmaxf(maxX, CGRectGetMaxX(subview.frame));
-                maxY = fmaxf(maxY, CGRectGetMaxY(subview.frame));
-            }
-            CGRect frame = child.frame;
-            if (!frame.size.width) frame.size.width = maxX;
-            if (!frame.size.height) frame.size.height = maxY;
-            child.frame = frame;
-        }
     }
 }
+
+- (void)sizeViewToFit:(UIView *)view {
+    if (!view.subviews.count || [view isKindOfClass:[UIButton class]]) {
+        [view sizeToFit];
+        return;
+    }
+    CGFloat maxX = 0, maxY = 0;
+    for (UIView* subview in view.subviews) {
+        maxX = fmaxf(maxX, CGRectGetMaxX(subview.frame));
+        maxY = fmaxf(maxY, CGRectGetMaxY(subview.frame));
+    }
+    CGRect frame = view.frame;
+    if (!frame.size.width) frame.size.width = maxX;
+    if (!frame.size.height) frame.size.height = maxY;
+    view.frame = frame;
+}
+
+- (void)fixContentSize:(UIScrollView*)scrollView {
+    CGFloat maxX = 0, maxY = 0;
+    for (UIView* subview in scrollView.subviews) {
+        maxX = fmaxf(maxX, CGRectGetMaxX(subview.frame));
+        maxY = fmaxf(maxY, CGRectGetMaxY(subview.frame));
+    }
+    scrollView.contentSize = CGSizeMake(maxX, maxY);
+}
+
 
 - (UIView*)createViewWithClass:(NSString*)className {
     if ([className isEqualToString:@"UIButton"]) {
