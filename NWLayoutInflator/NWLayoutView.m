@@ -18,6 +18,8 @@ static NSMutableDictionary *_namedColors;
 
 @implementation NWLayoutView {
     NSMutableDictionary *_childrenById; // NSString -> UIView
+    NSMutableDictionary *_attributesById; // NSString -> NSDictionary
+    NSMutableArray *_segmentedControls;
     NSMutableArray *_allNodes; // array of nsdictionaries, each dict has attributes and @"node"
 }
 
@@ -32,6 +34,8 @@ static NSMutableDictionary *_namedColors;
 
 - (void)initialize {
     _childrenById = [NSMutableDictionary dictionary];
+    _attributesById = [NSMutableDictionary dictionary];
+    _segmentedControls = [NSMutableArray array];
     _allNodes = [NSMutableArray array];
     if (!_cachedXML) {
         _cachedXML = [NSMutableDictionary dictionary];
@@ -138,7 +142,10 @@ static NSMutableDictionary *_namedColors;
     [self createAndAddChildNodes:[root childNodes] To:self];
     CGRect frame = self.frame;
     [self applyAttributes:[root attributes] To:self layoutOnly:NO];
-    self.frame = frame;
+    [self setFrame:frame];
+    for (UISegmentedControl *child in _segmentedControls) {
+        [self chooseSegment:(UISegmentedControl*)child];
+    }
 }
 
 - (void) createAndAddChildNodes:(NSArray*)nodes To:(UIView*)view {
@@ -151,6 +158,17 @@ static NSMutableDictionary *_namedColors;
         [_allNodes addObject:@{@"view": child, @"attributes": [node attributes]}];
         if ([node childNodes].count) {
             [self createAndAddChildNodes:node.childNodes To:child];
+            if (node.attributes[@"sizeToFit"]) {
+                CGFloat maxX = 0, maxY = 0;
+                for (UIView* subview in child.subviews) {
+                    maxX = fmaxf(maxX, CGRectGetMaxX(subview.frame));
+                    maxY = fmaxf(maxY, CGRectGetMaxY(subview.frame));
+                }
+                CGRect frame = child.frame;
+                if (!frame.size.width) frame.size.width = maxX;
+                if (!frame.size.height) frame.size.height = maxY;
+                child.frame = frame;
+            }
         }
         if ([node.nodeName isEqualToString:@"UIScrollView"]) {
             CGFloat maxX = 0, maxY = 0;
@@ -159,6 +177,9 @@ static NSMutableDictionary *_namedColors;
                 maxY = fmaxf(maxY, CGRectGetMaxY(subview.frame));
             }
             ((UIScrollView*)child).contentSize = CGSizeMake(maxX, maxY);
+        }
+        if ([node.nodeName isEqualToString:@"UISegmentedControl"]) {
+            [_segmentedControls addObject:child];
         }
     }
 }
@@ -181,6 +202,7 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal) {
         if ([_layoutKeys containsObject:key]) {
             if ([key isEqualToString:@"id"]) {
                 _childrenById[value] = view;
+                _attributesById[value] = attributes;
             } else if ([key isEqualToString:@"width"]) {
                 frame.size.width = parseValue(value, view, YES);
             } else if ([key isEqualToString:@"height"]) {
@@ -196,15 +218,15 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal) {
                 UIView *other = _childrenById[value];
                 frame.origin.y = other.frame.origin.y;
             } else if ([key isEqualToString:@"marginTop"]) {
-                margin.top = [value floatValue];
+                margin.top = parseValue(value, view, NO);
             } else if ([key isEqualToString:@"marginLeft"]) {
-                margin.left = [value floatValue];
+                margin.left = parseValue(value, view, YES);
             } else if ([key isEqualToString:@"marginBottom"]) {
-                margin.bottom = [value floatValue];
+                margin.bottom = parseValue(value, view, NO);
             } else if ([key isEqualToString:@"marginRight"]) {
-                margin.right = [value floatValue];
+                margin.right = parseValue(value, view, YES);
             } else if ([key isEqualToString:@"margin"]) {
-                CGFloat floatVal = [value floatValue];
+                CGFloat floatVal = parseValue(value, view, YES);
                 margin = UIEdgeInsetsMake(floatVal, floatVal, floatVal, floatVal);
             }
         } else if (!layoutOnly) {
@@ -213,8 +235,11 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal) {
     }
     view.frame = frame;
     if (attributes[@"sizeToFit"]) {
+        CGSize origSize = frame.size;
         [view sizeToFit];
         frame = view.frame;
+        if (origSize.width) frame.size.width = origSize.width;
+        if (origSize.height) frame.size.height = origSize.height;
     }
     if (attributes[@"above"]) {
         UIView *other = _childrenById[attributes[@"above"]];
@@ -267,6 +292,18 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal) {
     for (NSDictionary *node in _allNodes) {
         if (node[@"root"]) continue;
         [self applyAttributes:node[@"attributes"] To:node[@"view"] layoutOnly:YES];
+        if (node[@"attributes"][@"sizeToFit"]) {
+            UIView *child = node[@"view"];
+            CGFloat maxX = 0, maxY = 0;
+            for (UIView* subview in child.subviews) {
+                maxX = fmaxf(maxX, CGRectGetMaxX(subview.frame));
+                maxY = fmaxf(maxY, CGRectGetMaxY(subview.frame));
+            }
+            CGRect frame = child.frame;
+            if (!frame.size.width) frame.size.width = maxX;
+            if (!frame.size.height) frame.size.height = maxY;
+            child.frame = frame;
+        }
     }
 }
 
@@ -307,6 +344,52 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal) {
 - (void)addSubview:(UIView *)view withId:(NSString*)name {
     [self addSubview:view];
     _childrenById[name] = view;
+}
+
+- (void)chooseSegment:(UISegmentedControl*)control {
+    NSString *controlId;
+    for (NSString *name in _childrenById) {
+        if (_childrenById[name] == control) {
+            controlId = name;
+            break;
+        }
+    }
+    if (!controlId) {
+        NSLog(@"ERROR: Cannot show/hide nodes for segmentedcontrol without an id");
+        return;
+    }
+    UIView *childContainer = _childrenById[[NSString stringWithFormat:@"%@_views", controlId]];
+    if (!childContainer) {
+        NSLog(@"ERROR: no child nodes to display for segmentedcontrol with id %@", controlId);
+        return;
+    }
+    CGRect frame = childContainer.frame;
+    CGFloat height = frame.size.height;
+    for (int i = 0; i < childContainer.subviews.count; i++) {
+        ((UIView*)childContainer.subviews[i]).hidden = i != control.selectedSegmentIndex;
+    }
+    height = CGRectGetMaxY(((UIView*)childContainer.subviews[control.selectedSegmentIndex]).frame);
+    frame.size.height = height;
+    childContainer.frame = frame;
+    
+    UIView *parent = [childContainer superview];
+    if (parent.subviews.count == 2 && control.superview == parent) {
+        CGRect parentRect = parent.frame;
+        parentRect.size.height = CGRectGetMaxY(frame);
+        parent.frame = parentRect;
+    }
+    // TODO: make a helper function for fixing layout issues in general, using _attributesById
+    while (parent && parent != self) {
+        if ([parent isKindOfClass:[UIScrollView class]]) {
+            CGFloat maxX = 0, maxY = 0;
+            for (UIView* subview in parent.subviews) {
+                maxX = fmaxf(maxX, CGRectGetMaxX(subview.frame));
+                maxY = fmaxf(maxY, CGRectGetMaxY(subview.frame));
+            }
+            ((UIScrollView*)parent).contentSize = CGSizeMake(maxX, maxY);
+        }
+        parent = [parent superview];
+    }
 }
 
 /*

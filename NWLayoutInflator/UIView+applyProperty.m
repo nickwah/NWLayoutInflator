@@ -131,6 +131,10 @@
 }
 
 - (void)apply_onclick:(NSString*)value layoutView:(NWLayoutView*)layoutView {
+    if (layoutView.delegate && ![layoutView.delegate respondsToSelector:NSSelectorFromString(value)]) {
+        NSLog(@"ERROR: delegate does not respond to %@ -- %@", value, layoutView.delegate);
+        return;
+    }
     if ([self respondsToSelector:@selector(addTarget:action:forControlEvents:)]) {
         [((UIButton*)self) addTarget:layoutView.delegate action:NSSelectorFromString(value) forControlEvents:UIControlEventTouchUpInside];
     } else {
@@ -158,6 +162,18 @@
     if ([self respondsToSelector:@selector(setScrollEnabled:)]) {
         ((UIScrollView*)self).scrollEnabled = [value intValue] ? YES : NO;
     }
+}
+
+- (void) apply_segments:(NSString*)value layoutView:(NWLayoutView*)layoutView {
+    if (![self isKindOfClass:[UISegmentedControl class]]) return;
+    UISegmentedControl *control = (UISegmentedControl*)self;
+    NSArray *items = [value componentsSeparatedByString:@"|"];
+    [control removeAllSegments];
+    for (NSString *segment in items) {
+        [control insertSegmentWithTitle:segment atIndex:control.numberOfSegments animated:NO];
+    }
+    [control addTarget:layoutView action:@selector(chooseSegment:) forControlEvents:UIControlEventValueChanged];
+    control.selectedSegmentIndex = 0;
 }
 
 @end
