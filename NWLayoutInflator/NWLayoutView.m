@@ -33,10 +33,6 @@ static NSMutableDictionary *_namedColors;
 }
 
 - (void)initialize {
-    _childrenById = [NSMutableDictionary dictionary];
-    _attributesById = [NSMutableDictionary dictionary];
-    _segmentedControls = [NSMutableArray array];
-    _allNodes = [NSMutableArray array];
     if (!_cachedXML) {
         _cachedXML = [NSMutableDictionary dictionary];
     }
@@ -124,6 +120,13 @@ static NSMutableDictionary *_namedColors;
 }
 
 - (void)parseLayout {
+    _childrenById = [NSMutableDictionary dictionary];
+    _attributesById = [NSMutableDictionary dictionary];
+    _segmentedControls = [NSMutableArray array];
+    _allNodes = [NSMutableArray array];
+    for (UIView *subview in self.subviews) {
+        [subview removeFromSuperview];
+    }
     if (!_layoutName) {
         // TODO: raise an exception
         [NSException raise:@"Layout not found" format:@"%@ is null", _layoutName];
@@ -254,6 +257,9 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal) {
     } else if (attributes[@"toRightOf"]) {
         UIView *other = _childrenById[attributes[@"toRightOf"]];
         frame.origin.x = other.frame.origin.x + other.frame.size.width;
+    } else if (attributes[@"alignRight"]) {
+        UIView *other = _childrenById[attributes[@"alignRight"]];
+        frame.origin.x = other.frame.origin.x + other.frame.size.width - frame.size.width;
     } else if (attributes[@"centerHorizontal"]) {
         frame.origin.x = ([view superview].bounds.size.width - frame.size.width) / 2;
     }
