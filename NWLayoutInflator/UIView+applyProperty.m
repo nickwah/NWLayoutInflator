@@ -29,7 +29,7 @@
 
 - (void)apply_font:(NSString*)value layoutView:(NWLayoutView*)layoutView {
     UIFont *font;
-    if (![value containsString:@":"]) {
+    if ([value rangeOfString:@":"].location == NSNotFound) {
         font = [UIFont systemFontOfSize:[value floatValue]];
     } else {
         NSString *valueFromColon = [value substringFromIndex:[value rangeOfString:@":"].location + 1];
