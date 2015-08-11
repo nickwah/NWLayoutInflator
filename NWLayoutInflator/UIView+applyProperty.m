@@ -9,6 +9,7 @@
 #import "UIView+applyProperty.h"
 #import "UIColor+hexString.h"
 #import "NWLayoutView.h"
+#import "UIGestureRecognizer+Blocks.h"
 
 @implementation UIView (applyProperty)
 
@@ -131,16 +132,47 @@
 }
 
 - (void)apply_onclick:(NSString*)value layoutView:(NWLayoutView*)layoutView {
-    if (layoutView.delegate && ![layoutView.delegate respondsToSelector:NSSelectorFromString(value)]) {
+    NSString *param = nil;
+    NSString *method = value;
+    NSRange colon = [value rangeOfString:@":"];
+    if ([value rangeOfString:@"//"].location != NSNotFound) {
+        // It's a url
+        param = value;
+        method = @"openUrl:";
+    } else if (colon.location != NSNotFound && colon.location < value.length - 1) {
+        method = [value substringToIndex:colon.location + 1];
+        param = [value substringFromIndex:colon.location + 1];
+    }
+    NSCharacterSet *nonSelectorChars = [[NSCharacterSet characterSetWithCharactersInString:@"ABCDEFGHIJKLMONPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_:"] invertedSet];
+    if ([method rangeOfCharacterFromSet:nonSelectorChars].location == NSNotFound && [layoutView.delegate respondsToSelector:NSSelectorFromString(method)]) {
+        if (param && param.length) {
+            self.userInteractionEnabled = YES;
+            __weak id weakDelegate = layoutView.delegate;
+            UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithActionBlock:^(UIGestureRecognizer *gesture) {
+                if (!weakDelegate) return;
+                [weakDelegate performSelector:NSSelectorFromString(method) withObject:param];
+            }];
+            [self addGestureRecognizer:tapRecognizer];
+        } else {
+            if ([self respondsToSelector:@selector(addTarget:action:forControlEvents:)]) {
+                [((UIButton*)self) addTarget:layoutView.delegate action:NSSelectorFromString(value) forControlEvents:UIControlEventTouchUpInside];
+            } else {
+                self.userInteractionEnabled = YES;
+                UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:layoutView.delegate action:NSSelectorFromString(value)];
+                [self addGestureRecognizer:tapRecognizer];
+            }
+        }
+    } else if ([layoutView.delegate respondsToSelector:@selector(onclick:)]) {
+        self.userInteractionEnabled = YES;
+        __weak id weakDelegate = layoutView.delegate;
+        UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithActionBlock:^(UIGestureRecognizer *gesture) {
+            if (!weakDelegate) return;
+            [weakDelegate performSelector:@selector(onclick:) withObject:value];
+        }];
+        [self addGestureRecognizer:tapRecognizer];
+    } else {
         NSLog(@"ERROR: delegate does not respond to %@ -- %@", value, layoutView.delegate);
         return;
-    }
-    if ([self respondsToSelector:@selector(addTarget:action:forControlEvents:)]) {
-        [((UIButton*)self) addTarget:layoutView.delegate action:NSSelectorFromString(value) forControlEvents:UIControlEventTouchUpInside];
-    } else {
-        self.userInteractionEnabled = YES;
-        UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:layoutView.delegate action:NSSelectorFromString(value)];
-        [self addGestureRecognizer:tapRecognizer];
     }
 }
 
