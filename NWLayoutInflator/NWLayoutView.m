@@ -141,7 +141,7 @@ static NSMutableDictionary *_namedColors;
         root = [NSDictionary dictionaryWithXMLString:xmlLayout];
         _parsedCache[_layoutName] = root;
     }
-    [_allNodes addObject:@{@"view": self, @"attributes": [root attributes], @"root": @YES}];
+    [_allNodes addObject:@{@"view": self, @"attributes": [root safeAttributes], @"root": @YES}];
     [self createAndAddChildNodes:[root childNodes] To:self];
     CGRect frame = self.frame;
     [self applyAttributes:[root attributes] To:self layoutOnly:NO];
@@ -158,7 +158,7 @@ static NSMutableDictionary *_namedColors;
         UIView *child = [self createViewWithClass:[node nodeName]];
         [view addSubview:child];
         [self applyAttributes:[node attributes] To:child layoutOnly:NO];
-        [_allNodes addObject:@{@"view": child, @"attributes": [node attributes]}];
+        [_allNodes addObject:@{@"view": child, @"attributes": [node safeAttributes]}];
         if ([node childNodes].count) {
             [self createAndAddChildNodes:node.childNodes To:child];
             if (node.attributes[@"sizeToFit"]) {

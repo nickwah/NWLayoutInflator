@@ -16,7 +16,9 @@
 - (void)applyProperty:(NSString*)name value:(NSString*)value layoutView:(NWLayoutView*)layoutView {
     SEL s = NSSelectorFromString([NSString stringWithFormat:@"apply_%@:layoutView:", name]);
     if ([self respondsToSelector:s]) {
-        [self performSelector:s withObject:value withObject:layoutView];
+        IMP imp = [self methodForSelector:s];
+        void (*func)(id, SEL, NSString*, NWLayoutView*) = (void *)imp;
+        func(self, s, value, layoutView);
     }
 }
 
@@ -150,7 +152,10 @@
             __weak id weakDelegate = layoutView.delegate;
             UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithActionBlock:^(UIGestureRecognizer *gesture) {
                 if (!weakDelegate) return;
-                [weakDelegate performSelector:NSSelectorFromString(method) withObject:param];
+                SEL selector = NSSelectorFromString(method);
+                IMP imp = [weakDelegate methodForSelector:selector];
+                void (*func)(id, SEL, NSString*) = (void *)imp;
+                func(weakDelegate, selector, param);
             }];
             [self addGestureRecognizer:tapRecognizer];
         } else {

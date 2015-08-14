@@ -438,6 +438,12 @@
 	return nil;
 }
 
+- (NSDictionary *)safeAttributes {
+    NSDictionary *attrs = [self attributes];
+    if (attrs == nil) return @{};
+    return attrs;
+}
+
 - (NSArray *)childNodes
 {
     return self[XMLDictionaryChildNodesKey];

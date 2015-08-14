@@ -89,6 +89,7 @@ static NSString *const XMLDictionaryChildNodesKey   = @"__childNodes";
 + (NSDictionary *)dictionaryWithXMLFile:(NSString *)path;
 
 - (NSDictionary *)attributes;
+- (NSDictionary *)safeAttributes;
 - (NSArray *)childNodes;
 - (NSArray *)comments;
 - (NSString *)nodeName;
