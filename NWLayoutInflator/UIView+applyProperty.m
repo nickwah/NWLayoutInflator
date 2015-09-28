@@ -136,6 +136,7 @@
 - (void)apply_onclick:(NSString*)value layoutView:(NWLayoutView*)layoutView {
     NSString *param = nil;
     NSString *method = value;
+    BOOL includeView = NO;
     NSRange colon = [value rangeOfString:@":"];
     if ([value rangeOfString:@"//"].location != NSNotFound) {
         // It's a url
@@ -144,18 +145,29 @@
     } else if (colon.location != NSNotFound && colon.location < value.length - 1) {
         method = [value substringToIndex:colon.location + 1];
         param = [value substringFromIndex:colon.location + 1];
+        if ([param hasSuffix:@" view:"]) {
+            method = [NSString stringWithFormat:@"%@view:", method];
+            param = [param substringToIndex:[param rangeOfString:@" "].location];
+            includeView = YES;
+        }
     }
     NSCharacterSet *nonSelectorChars = [[NSCharacterSet characterSetWithCharactersInString:@"ABCDEFGHIJKLMONPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_:"] invertedSet];
     if ([method rangeOfCharacterFromSet:nonSelectorChars].location == NSNotFound && [layoutView.delegate respondsToSelector:NSSelectorFromString(method)]) {
         if (param && param.length) {
             self.userInteractionEnabled = YES;
             __weak id weakDelegate = layoutView.delegate;
+            __weak typeof(layoutView)weakLayoutView = layoutView;
             UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithActionBlock:^(UIGestureRecognizer *gesture) {
                 if (!weakDelegate) return;
                 SEL selector = NSSelectorFromString(method);
                 IMP imp = [weakDelegate methodForSelector:selector];
-                void (*func)(id, SEL, NSString*) = (void *)imp;
-                func(weakDelegate, selector, param);
+                if (includeView) {
+                    void (*func)(id, SEL, NSString*, NWLayoutView*view) = (void *)imp;
+                    func(weakDelegate, selector, param, weakLayoutView);
+                } else {
+                    void (*func)(id, SEL, NSString*) = (void *)imp;
+                    func(weakDelegate, selector, param);
+                }
             }];
             [self addGestureRecognizer:tapRecognizer];
         } else {
@@ -246,6 +258,68 @@
         }
         ((UITextField*)self).keyboardType = keyboardType;
     }
+}
+
+- (void)apply_transform:(NSString*)value layoutView:(NWLayoutView*)layoutView {
+    CGAffineTransform transform = CGAffineTransformIdentity;
+    NSArray *parts = [value componentsSeparatedByString:@" "];
+    for (NSString *part in parts) {
+        NSArray *keyValue = [part componentsSeparatedByString:@":"];
+        if (keyValue.count < 2) continue;
+        NSString *key = keyValue[0];
+        NSString *valueStr = keyValue[1];
+        NSArray *values = [valueStr componentsSeparatedByString:@","];
+        if ([key isEqualToString:@"scale"] && values.count == 2) {
+            transform = CGAffineTransformScale(transform, [values[0] floatValue], [values[1] floatValue]);
+        } else if ([key isEqualToString:@"rotate"]) {
+            transform = CGAffineTransformRotate(transform, [values[0] floatValue]);
+        } else if ([key isEqualToString:@"translate"] && values.count == 2) {
+            transform = CGAffineTransformTranslate(transform, [values[0] floatValue], [values[1] floatValue]);
+        }
+    }
+    self.transform = transform;
+}
+
+- (void)apply_minimumDate:(NSString*)value layoutView:(NWLayoutView*)layoutView {
+    if (![self respondsToSelector:@selector(setMinimumDate:)]) return;
+    UIDatePicker *dp = (UIDatePicker*)self;
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    [formatter setDateFormat:@"yyyy-MM-dd"];
+    NSDate *date = [formatter dateFromString:value];
+    [dp setMinimumDate:date];
+}
+
+- (void)apply_maximumDate:(NSString*)value layoutView:(NWLayoutView*)layoutView {
+    if (![self respondsToSelector:@selector(setMaximumDate:)]) return;
+    UIDatePicker *dp = (UIDatePicker*)self;
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    [formatter setDateFormat:@"yyyy-MM-dd"];
+    NSDate *date = [formatter dateFromString:value];
+    [dp setMaximumDate:date];
+}
+
+- (void)apply_date:(NSString*)value layoutView:(NWLayoutView*)layoutView {
+    if (![self respondsToSelector:@selector(setDate:)]) return;
+    UIDatePicker *dp = (UIDatePicker*)self;
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    [formatter setDateFormat:@"yyyy-MM-dd"];
+    NSDate *date = [formatter dateFromString:value];
+    [dp setDate:date];
+}
+
+- (void)apply_datePickerMode:(NSString*)value layoutView:(NWLayoutView*)layoutView {
+    if (![self respondsToSelector:@selector(setDatePickerMode:)]) return;
+    UIDatePickerMode mode = ((UIDatePicker*)self).datePickerMode;
+    if ([value isEqualToString:@"date"]) {
+        mode = UIDatePickerModeDate;
+    } else if ([value isEqualToString:@"dateAndTime"]) {
+        mode = UIDatePickerModeDateAndTime;
+    } else if ([value isEqualToString:@"countDownTimer"]) {
+        mode = UIDatePickerModeCountDownTimer;
+    } else if ([value isEqualToString:@"time"]) {
+        mode = UIDatePickerModeTime;
+    }
+    ((UIDatePicker*)self).datePickerMode = mode;
 }
 
 @end

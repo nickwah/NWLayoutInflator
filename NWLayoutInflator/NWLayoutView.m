@@ -314,6 +314,11 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal) {
     view.frame = frame;
 }
 
+- (void)sizeToFit {
+    [super sizeToFit];
+    [self sizeViewToFit:self];
+}
+
 - (void)fixContentSize:(UIScrollView*)scrollView {
     CGFloat maxX = 0, maxY = 0;
     for (UIView* subview in scrollView.subviews) {
@@ -409,12 +414,26 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal) {
     }
 }
 
-/*
-// Only override drawRect: if you perform custom drawing.
-// An empty implementation adversely affects performance during animation.
-- (void)drawRect:(CGRect)rect {
-    // Drawing code
+- (NSMutableDictionary*)getFormValues {
+    NSMutableDictionary *values = [NSMutableDictionary dictionary];
+    for (NSString *name in _childrenById) {
+        UIView *child = _childrenById[name];
+        if ([child isKindOfClass:[UIDatePicker class]]) {
+            NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
+            UIDatePicker *dp = (UIDatePicker*)child;
+            if (dp.datePickerMode == UIDatePickerModeDate) {
+                [dateFormat setDateFormat:@"yyyy-MM-dd"];
+            } else if (dp.datePickerMode == UIDatePickerModeDateAndTime) {
+                [dateFormat setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+            } else if (dp.datePickerMode == UIDatePickerModeTime) {
+                [dateFormat setDateFormat:@"HH:mm:ss"];
+            }
+            values[name] = [dateFormat stringFromDate:dp.date];
+        } else if ([child isKindOfClass:[UITextField class]]) {
+            values[name] = ((UITextField*)child).text;
+        }
+    }
+    return values;
 }
-*/
 
 @end

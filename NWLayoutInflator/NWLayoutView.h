@@ -23,6 +23,7 @@
 - (void)addSubview:(UIView *)view withId:(NSString*)name;
 - (void)chooseSegment:(UISegmentedControl*)control;
 - (void)fixContentSize:(UIScrollView*)scrollView;
+- (NSMutableDictionary*)getFormValues;
 
 + (void)setXML:(NSString*)xml forName:(NSString*)name;
 + (void)revertXMLforName:(NSString*)name;
