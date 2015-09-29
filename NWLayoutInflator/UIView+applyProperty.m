@@ -19,6 +19,21 @@
         IMP imp = [self methodForSelector:s];
         void (*func)(id, SEL, NSString*, NWLayoutView*) = (void *)imp;
         func(self, s, value, layoutView);
+    } else {
+        SEL s = NSSelectorFromString([NSString stringWithFormat:@"set%@%@:", [[name substringToIndex:1] uppercaseString], [name substringFromIndex:1]]);
+        if ([self respondsToSelector:s]) {
+            IMP imp = [self methodForSelector:s];
+            void (*func)(id, SEL, NSString*) = (void *)imp;
+            @try {
+                func(self, s, value);
+            }
+            @catch (NSException *exception) {
+                NSLog(@"Exception encountered applying property %@ with value %@\n%@", name, value, exception);
+            }
+            @finally {
+                // ?
+            }
+        }
     }
 }
 
@@ -320,6 +335,12 @@
         mode = UIDatePickerModeTime;
     }
     ((UIDatePicker*)self).datePickerMode = mode;
+}
+
+- (void)apply_formValue:(NSString*)value layoutView:(NWLayoutView*)layoutView {
+    // TODO: this is unnecessary; the generic set* in applyProperty should cover it
+    if (![self respondsToSelector:@selector(setFormValue:)]) return;
+    [self performSelector:@selector(setFormValue:) withObject:value];
 }
 
 @end

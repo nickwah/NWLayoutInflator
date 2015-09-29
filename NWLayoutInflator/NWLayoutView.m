@@ -429,6 +429,8 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal) {
                 [dateFormat setDateFormat:@"HH:mm:ss"];
             }
             values[name] = [dateFormat stringFromDate:dp.date];
+        } else if ([child respondsToSelector:@selector(formValue)]) {
+            values[name] = [child performSelector:@selector(formValue)];
         } else if ([child isKindOfClass:[UITextField class]]) {
             values[name] = ((UITextField*)child).text;
         }
