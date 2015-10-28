@@ -92,13 +92,13 @@
 
 - (void)apply_textAlignment:(NSString*)value layoutView:(NWLayoutView*)layoutView {
     if ([self respondsToSelector:@selector(setTextAlignment:)]) {
-        NSTextAlignment alignment;
+        NSTextAlignment alignment = NSTextAlignmentCenter;
         if ([value isEqualToString:@"left"]) alignment = NSTextAlignmentLeft;
         else if ([value isEqualToString:@"center"]) alignment = NSTextAlignmentCenter;
         else if ([value isEqualToString:@"right"]) alignment = NSTextAlignmentRight;
         ((UILabel*)self).textAlignment = alignment;
     } else if ([self respondsToSelector:@selector(setContentHorizontalAlignment:)]) {
-        UIControlContentHorizontalAlignment alignment;
+        UIControlContentHorizontalAlignment alignment = UIControlContentHorizontalAlignmentCenter;
         if ([value isEqualToString:@"left"]) alignment = UIControlContentHorizontalAlignmentLeft;
         else if ([value isEqualToString:@"center"]) alignment = UIControlContentHorizontalAlignmentCenter;
         else if ([value isEqualToString:@"right"]) alignment = UIControlContentHorizontalAlignmentRight;
@@ -145,6 +145,27 @@
 - (void)apply_tintColor:(NSString*)value layoutView:(NWLayoutView*)layoutView {
     if ([self respondsToSelector:@selector(setTintColor:)]) {
         [((UIImageView*)self) setTintColor:[self colorNamed:value]];
+    }
+}
+
+- (void)apply_contentMode:(NSString*)value layoutView:(NWLayoutView*)layoutView {
+    if ([self respondsToSelector:@selector(setContentMode:)]) {
+        value = [value lowercaseString];
+        UIViewContentMode contentMode = self.contentMode;
+        if ([value isEqualToString:@"scaletofill"]) contentMode = UIViewContentModeScaleToFill;
+        else if ([value isEqualToString:@"scaleaspectfit"]) contentMode = UIViewContentModeScaleAspectFit;
+        else if ([value isEqualToString:@"scaleaspectfill"]) contentMode = UIViewContentModeScaleAspectFill;
+        else if ([value isEqualToString:@"redraw"]) contentMode = UIViewContentModeRedraw;
+        else if ([value isEqualToString:@"center"]) contentMode = UIViewContentModeCenter;
+        else if ([value isEqualToString:@"top"]) contentMode = UIViewContentModeTop;
+        else if ([value isEqualToString:@"bottom"]) contentMode = UIViewContentModeBottom;
+        else if ([value isEqualToString:@"left"]) contentMode = UIViewContentModeLeft;
+        else if ([value isEqualToString:@"right"]) contentMode = UIViewContentModeRight;
+        else if ([value isEqualToString:@"topleft"]) contentMode = UIViewContentModeTopLeft;
+        else if ([value isEqualToString:@"topright"]) contentMode = UIViewContentModeTopRight;
+        else if ([value isEqualToString:@"bottomleft"]) contentMode = UIViewContentModeBottomLeft;
+        else if ([value isEqualToString:@"bottomright"]) contentMode = UIViewContentModeBottomRight;
+        self.contentMode = contentMode;
     }
 }
 
@@ -210,11 +231,12 @@
 
 - (void)apply_activityIndicatorViewStyle:(NSString*)value layoutView:(NWLayoutView*)layoutView {
     if ([self respondsToSelector:@selector(setActivityIndicatorViewStyle:)]) {
-        UIActivityIndicatorViewStyle style;
+        UIActivityIndicatorViewStyle style = UIActivityIndicatorViewStyleWhite;
         if ([value isEqualToString:@"white"]) style = UIActivityIndicatorViewStyleWhite;
         else if ([value isEqualToString:@"whitelarge"]) style = UIActivityIndicatorViewStyleWhiteLarge;
         else if ([value isEqualToString:@"gray"]) style = UIActivityIndicatorViewStyleGray;
         ((UIActivityIndicatorView*)self).activityIndicatorViewStyle = style;
+        [((UIActivityIndicatorView*)self) startAnimating];
     }
 }
 
