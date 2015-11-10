@@ -15,4 +15,6 @@ typedef void(^NWAlertViewCallback)(NSString*answer);
 - (instancetype)initWithLayout:(NSString *)layoutName andFrame:(CGRect)frame callback:(NWAlertViewCallback)callback;
 - (void)setCallback:(NWAlertViewCallback)callback;
 
+- (void)presentIn:(UIView*)parent animated:(BOOL)animated;
+
 @end

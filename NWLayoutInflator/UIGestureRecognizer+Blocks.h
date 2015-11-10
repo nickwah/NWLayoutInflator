@@ -33,6 +33,6 @@
 + (id)instanceWithActionBlock:(void (^) (UIGestureRecognizer* gesture))action;
 
 - (id)initWithActionBlock:(void (^) (UIGestureRecognizer* gesture))action;
-
+- (void)handleAction:(UIGestureRecognizer *)recognizer;
 
 @end

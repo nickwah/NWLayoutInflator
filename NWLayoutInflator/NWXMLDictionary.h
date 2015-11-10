@@ -1,14 +1,14 @@
 //
-//  XMLDictionary.h
+//  NWXMLDictionary.h
 //
 //  Version 1.4
 //
 //  Created by Nick Lockwood on 15/11/2010.
 //  Copyright 2010 Charcoal Design. All rights reserved.
 //
-//  Get the latest version of XMLDictionary from here:
+//  Get the latest version of NWXMLDictionary from here:
 //
-//  https://github.com/nicklockwood/XMLDictionary
+//  https://github.com/nicklockwood/NWXMLDictionary
 //
 //  This software is provided 'as-is', without any express or implied
 //  warranty.  In no event will the authors be held liable for any damages
@@ -34,34 +34,34 @@
 #pragma GCC diagnostic ignored "-Wobjc-missing-property-synthesis"
 
 
-typedef NS_ENUM(NSInteger, XMLDictionaryAttributesMode)
+typedef NS_ENUM(NSInteger, NWXMLDictionaryAttributesMode)
 {
-    XMLDictionaryAttributesModePrefixed = 0, //default
-    XMLDictionaryAttributesModeDictionary,
-    XMLDictionaryAttributesModeUnprefixed,
-    XMLDictionaryAttributesModeDiscard
+    NWXMLDictionaryAttributesModePrefixed = 0, //default
+    NWXMLDictionaryAttributesModeDictionary,
+    NWXMLDictionaryAttributesModeUnprefixed,
+    NWXMLDictionaryAttributesModeDiscard
 };
 
 
-typedef NS_ENUM(NSInteger, XMLDictionaryNodeNameMode)
+typedef NS_ENUM(NSInteger, NWXMLDictionaryNodeNameMode)
 {
-    XMLDictionaryNodeNameModeRootOnly = 0, //default
-    XMLDictionaryNodeNameModeAlways,
-    XMLDictionaryNodeNameModeNever
+    NWXMLDictionaryNodeNameModeRootOnly = 0, //default
+    NWXMLDictionaryNodeNameModeAlways,
+    NWXMLDictionaryNodeNameModeNever
 };
 
 
-static NSString *const XMLDictionaryAttributesKey   = @"__attributes";
-static NSString *const XMLDictionaryCommentsKey     = @"__comments";
-static NSString *const XMLDictionaryTextKey         = @"__text";
-static NSString *const XMLDictionaryNodeNameKey     = @"__name";
-static NSString *const XMLDictionaryAttributePrefix = @"_";
-static NSString *const XMLDictionaryChildNodesKey   = @"__childNodes";
+static NSString *const NWXMLDictionaryAttributesKey   = @"__attributes";
+static NSString *const NWXMLDictionaryCommentsKey     = @"__comments";
+static NSString *const NWXMLDictionaryTextKey         = @"__text";
+static NSString *const NWXMLDictionaryNodeNameKey     = @"__name";
+static NSString *const NWXMLDictionaryAttributePrefix = @"_";
+static NSString *const NWXMLDictionaryChildNodesKey   = @"__childNodes";
 
 
-@interface XMLDictionaryParser : NSObject <NSCopying>
+@interface NWXMLDictionaryParser : NSObject <NSCopying>
 
-+ (XMLDictionaryParser *)sharedInstance;
++ (NWXMLDictionaryParser *)sharedInstance;
 
 @property (nonatomic, assign) BOOL collapseTextNodes; // defaults to YES
 @property (nonatomic, assign) BOOL stripEmptyNodes;   // defaults to YES
@@ -70,8 +70,8 @@ static NSString *const XMLDictionaryChildNodesKey   = @"__childNodes";
 @property (nonatomic, assign) BOOL preserveComments;  // defaults to NO
 @property (nonatomic, assign) BOOL wrapRootNode;      // defaults to NO
 
-@property (nonatomic, assign) XMLDictionaryAttributesMode attributesMode;
-@property (nonatomic, assign) XMLDictionaryNodeNameMode nodeNameMode;
+@property (nonatomic, assign) NWXMLDictionaryAttributesMode attributesMode;
+@property (nonatomic, assign) NWXMLDictionaryNodeNameMode nodeNameMode;
 
 - (NSDictionary *)dictionaryWithParser:(NSXMLParser *)parser;
 - (NSDictionary *)dictionaryWithData:(NSData *)data;
@@ -81,18 +81,18 @@ static NSString *const XMLDictionaryChildNodesKey   = @"__childNodes";
 @end
 
 
-@interface NSDictionary (XMLDictionary)
+@interface NSDictionary (NWXMLDictionary)
 
-+ (NSDictionary *)dictionaryWithXMLParser:(NSXMLParser *)parser;
-+ (NSDictionary *)dictionaryWithXMLData:(NSData *)data;
-+ (NSDictionary *)dictionaryWithXMLString:(NSString *)string;
-+ (NSDictionary *)dictionaryWithXMLFile:(NSString *)path;
++ (NSDictionary *)NWdictionaryWithXMLParser:(NSXMLParser *)parser;
++ (NSDictionary *)NWdictionaryWithXMLData:(NSData *)data;
++ (NSDictionary *)NWdictionaryWithXMLString:(NSString *)string;
++ (NSDictionary *)NWdictionaryWithXMLFile:(NSString *)path;
 
-- (NSDictionary *)attributes;
-- (NSDictionary *)safeAttributes;
-- (NSArray *)childNodes;
-- (NSArray *)comments;
-- (NSString *)nodeName;
+- (NSDictionary *)attributesNW;
+- (NSDictionary *)safeAttributesNW;
+- (NSArray *)childNodesNW;
+- (NSArray *)commentsNW;
+- (NSString *)nodeNameNW;
 - (NSString *)innerText;
 - (NSString *)innerXML;
 - (NSString *)XMLString;
@@ -104,7 +104,7 @@ static NSString *const XMLDictionaryChildNodesKey   = @"__childNodes";
 @end
 
 
-@interface NSString (XMLDictionary)
+@interface NSString (NWXMLDictionary)
 
 - (NSString *)XMLEncodedString;
 

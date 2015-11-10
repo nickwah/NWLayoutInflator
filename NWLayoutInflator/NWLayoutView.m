@@ -7,7 +7,7 @@
 //
 
 #import "NWLayoutView.h"
-#import "XMLDictionary.h"
+#import "NWXMLDictionary.h"
 #import "UIView+applyProperty.h"
 #import "UIColor+hexString.h"
 
@@ -138,13 +138,13 @@ static NSMutableDictionary *_namedColors;
             NSLog(@"ERROR: unable to locate %@", _layoutName);
             return;
         }
-        root = [NSDictionary dictionaryWithXMLString:xmlLayout];
+        root = [NSDictionary NWdictionaryWithXMLString:xmlLayout];
         _parsedCache[_layoutName] = root;
     }
-    [_allNodes addObject:@{@"view": self, @"attributes": [root safeAttributes], @"root": @YES}];
-    [self createAndAddChildNodes:[root childNodes] To:self];
+    [_allNodes addObject:@{@"view": self, @"attributes": [root safeAttributesNW], @"root": @YES}];
+    [self createAndAddChildNodes:[root childNodesNW] To:self];
     CGRect frame = self.frame;
-    [self applyAttributes:[root attributes] To:self layoutOnly:NO];
+    [self applyAttributes:[root attributesNW] To:self layoutOnly:NO];
     [self setFrame:frame];
     for (UISegmentedControl *child in _segmentedControls) {
         [self chooseSegment:(UISegmentedControl*)child];
@@ -152,24 +152,33 @@ static NSMutableDictionary *_namedColors;
 }
 
 - (void) createAndAddChildNodes:(NSArray*)nodes To:(UIView*)view {
-    if (!nodes) return;
-    for (NSDictionary* node in nodes) {
-        //NSLog(@"Adding child node with name %@", node.nodeName);
-        UIView *child = [self createViewWithClass:[node nodeName]];
-        [view addSubview:child];
-        [self applyAttributes:[node attributes] To:child layoutOnly:NO];
-        [_allNodes addObject:@{@"view": child, @"attributes": [node safeAttributes]}];
-        if ([node childNodes].count) {
-            [self createAndAddChildNodes:node.childNodes To:child];
-            if (node.attributes[@"sizeToFit"]) {
-                [self sizeViewToFit:child];
+    if (!nodes || !nodes.count) return;
+    NSUInteger numNodes = nodes.count;
+    for (int i = 0; i < numNodes; ++i) {
+        @try {
+            NSDictionary* node = nodes[i];
+            //NSLog(@"Adding child node with name %@", node.nodeName);
+            UIView *child = [self createViewWithClass:[node nodeNameNW]];
+            [view addSubview:child];
+            NSDictionary *attrs = [node attributesNW];
+            [self applyAttributes:attrs To:child layoutOnly:NO];
+            NSArray *childNodes = [node childNodesNW];
+            [_allNodes addObject:@{@"view": child, @"attributes": attrs ?: @{}, @"children": @(childNodes.count), @"last": @(i == numNodes - 1)}];
+            if (childNodes.count) {
+                [self createAndAddChildNodes:childNodes To:child];
+                if (node.attributesNW[@"sizeToFit"]) {
+                    [self sizeViewToFit:child];
+                }
+            }
+            if ([node.nodeNameNW isEqualToString:@"UIScrollView"]) {
+                [self fixContentSize:(UIScrollView*)child];
+            }
+            if ([node.nodeNameNW isEqualToString:@"UISegmentedControl"]) {
+                [_segmentedControls addObject:child];
             }
         }
-        if ([node.nodeName isEqualToString:@"UIScrollView"]) {
-            [self fixContentSize:(UIScrollView*)child];
-        }
-        if ([node.nodeName isEqualToString:@"UISegmentedControl"]) {
-            [_segmentedControls addObject:child];
+        @catch (NSException *exception) {
+            NSLog(@"Exception trying to render view %@ into %@\n%@", nodes[i], view, exception);
         }
     }
 }
@@ -291,10 +300,22 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal) {
 
 - (void)setFrame:(CGRect)frame {
     [super setFrame:frame];
-    // TODO: we have to go through all the nodes and
+    
+    NSMutableArray *nodeStack = [NSMutableArray array];
     for (NSDictionary *node in _allNodes) {
         if (node[@"root"]) continue;
         [self applyAttributes:node[@"attributes"] To:node[@"view"] layoutOnly:YES];
+        if ([node[@"last"] boolValue] && nodeStack.count) {
+            NSDictionary *parent = nodeStack.lastObject;
+            [nodeStack removeObjectAtIndex:nodeStack.count - 1];
+            if (parent[@"attributes"][@"sizeToFit"]) {
+                // We revisit the layout of the parent
+                [self applyAttributes:parent[@"attributes"] To:parent[@"view"] layoutOnly:YES];
+            }
+        }
+        if ([node[@"children"] intValue]) {
+            [nodeStack addObject:node];
+        }
     }
 }
 

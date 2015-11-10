@@ -10,6 +10,7 @@
 #import "UIColor+hexString.h"
 #import "NWLayoutView.h"
 #import "UIGestureRecognizer+Blocks.h"
+#import "UITouchDownGestureRecognizer.h"
 
 @implementation UIView (applyProperty)
 
@@ -119,6 +120,28 @@
 }
 - (void)apply_borderWidth:(NSString*)value layoutView:(NWLayoutView*)layoutView {
     self.layer.borderWidth = [value floatValue];
+}
+-(void)apply_activeColor:(NSString*)value layoutView:(NWLayoutView*)layoutView {
+    self.userInteractionEnabled = YES;
+    __weak typeof(self) weakSelf = self;
+    __block UIColor *origColor;
+    UITouchDownGestureRecognizer *downRecognizer = [[UITouchDownGestureRecognizer alloc] initWithActionBlock:^(UIGestureRecognizer *gesture) {
+        if (!weakSelf) return;
+        if (gesture.state == UIGestureRecognizerStateBegan) {
+            if (!origColor) origColor = weakSelf.backgroundColor;
+            weakSelf.backgroundColor = [weakSelf colorNamed:value];
+        } else if (origColor && (gesture.state == UIGestureRecognizerStateEnded || gesture.state == UIGestureRecognizerStateCancelled)) {
+            weakSelf.backgroundColor = origColor;
+        }
+        if (gesture.state == UIGestureRecognizerStateEnded) {
+            for (UIGestureRecognizer* recognizer in weakSelf.gestureRecognizers) {
+                if (gesture != recognizer && [recognizer isKindOfClass:[UITapGestureRecognizer class]]) {
+                    [recognizer handleAction:recognizer];
+                }
+            }
+        }
+    }];
+    [self addGestureRecognizer:downRecognizer];
 }
 
 - (void)apply_imageNamed:(NSString*)value layoutView:(NWLayoutView*)layoutView {

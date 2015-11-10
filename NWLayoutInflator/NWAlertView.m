@@ -10,6 +10,7 @@
 
 @implementation NWAlertView {
     NWAlertViewCallback _callback;
+    BOOL _animated;
 }
 
 - (void)setCallback:(NWAlertViewCallback)callback {
@@ -28,7 +29,26 @@
         _callback(answer);
         _callback = 0;
     }
-    [self removeFromSuperview];
+    if (_animated) {
+        [UIView animateWithDuration:0.2 animations:^{
+            self.alpha = 0;
+        } completion:^(BOOL finished) {
+            [self removeFromSuperview];
+        }];
+    } else {
+        [self removeFromSuperview];
+    }
+}
+
+- (void)presentIn:(UIView*)parent animated:(BOOL)animated {
+    [parent addSubview:self];
+    _animated = animated;
+    if (animated) {
+        self.alpha = 0;
+        [UIView animateWithDuration:0.4 animations:^{
+            self.alpha = 1;
+        }];
+    }
 }
 
 @end
