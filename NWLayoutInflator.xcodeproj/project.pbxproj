@@ -8,8 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		01B34AEF1B71327900995C02 /* NWLayoutInflator.h in Headers */ = {isa = PBXBuildFile; fileRef = 01B34AEE1B71327900995C02 /* NWLayoutInflator.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		01B34AF51B71327900995C02 /* NWLayoutInflator.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01B34AE91B71327900995C02 /* NWLayoutInflator.framework */; };
-		01B34AFC1B71327900995C02 /* NWLayoutInflatorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 01B34AFB1B71327900995C02 /* NWLayoutInflatorTests.m */; };
 		01B34B061B71333300995C02 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01B34B051B71333300995C02 /* UIKit.framework */; };
 		01B34B0F1B7133B200995C02 /* NWLayoutView.h in Headers */ = {isa = PBXBuildFile; fileRef = 01B34B071B7133B200995C02 /* NWLayoutView.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		01B34B101B7133B200995C02 /* NWLayoutView.m in Sources */ = {isa = PBXBuildFile; fileRef = 01B34B081B7133B200995C02 /* NWLayoutView.m */; };
@@ -17,27 +15,20 @@
 		01B34B121B7133B200995C02 /* UIColor+hexString.m in Sources */ = {isa = PBXBuildFile; fileRef = 01B34B0A1B7133B200995C02 /* UIColor+hexString.m */; };
 		01B34B131B7133B200995C02 /* UIView+applyProperty.h in Headers */ = {isa = PBXBuildFile; fileRef = 01B34B0B1B7133B200995C02 /* UIView+applyProperty.h */; };
 		01B34B141B7133B200995C02 /* UIView+applyProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = 01B34B0C1B7133B200995C02 /* UIView+applyProperty.m */; };
-		01B34B151B7133B200995C02 /* XMLDictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = 01B34B0D1B7133B200995C02 /* XMLDictionary.h */; };
-		01B34B161B7133B200995C02 /* XMLDictionary.m in Sources */ = {isa = PBXBuildFile; fileRef = 01B34B0E1B7133B200995C02 /* XMLDictionary.m */; };
+		01D861681BF2A66800CB0E8F /* NWAlertView.h in Headers */ = {isa = PBXBuildFile; fileRef = 01D861601BF2A66800CB0E8F /* NWAlertView.h */; };
+		01D861691BF2A66800CB0E8F /* NWAlertView.m in Sources */ = {isa = PBXBuildFile; fileRef = 01D861611BF2A66800CB0E8F /* NWAlertView.m */; };
+		01D8616A1BF2A66800CB0E8F /* NWXMLDictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = 01D861621BF2A66800CB0E8F /* NWXMLDictionary.h */; };
+		01D8616B1BF2A66800CB0E8F /* NWXMLDictionary.m in Sources */ = {isa = PBXBuildFile; fileRef = 01D861631BF2A66800CB0E8F /* NWXMLDictionary.m */; };
+		01D8616C1BF2A66800CB0E8F /* UIGestureRecognizer+Blocks.h in Headers */ = {isa = PBXBuildFile; fileRef = 01D861641BF2A66800CB0E8F /* UIGestureRecognizer+Blocks.h */; };
+		01D8616D1BF2A66800CB0E8F /* UIGestureRecognizer+Blocks.m in Sources */ = {isa = PBXBuildFile; fileRef = 01D861651BF2A66800CB0E8F /* UIGestureRecognizer+Blocks.m */; };
+		01D8616E1BF2A66800CB0E8F /* UITouchDownGestureRecognizer.h in Headers */ = {isa = PBXBuildFile; fileRef = 01D861661BF2A66800CB0E8F /* UITouchDownGestureRecognizer.h */; };
+		01D8616F1BF2A66800CB0E8F /* UITouchDownGestureRecognizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 01D861671BF2A66800CB0E8F /* UITouchDownGestureRecognizer.m */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		01B34AF61B71327900995C02 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 01B34AE01B71327900995C02 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 01B34AE81B71327900995C02;
-			remoteInfo = NWLayoutInflator;
-		};
-/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		01B34AE91B71327900995C02 /* NWLayoutInflator.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = NWLayoutInflator.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		01B34AED1B71327900995C02 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		01B34AEE1B71327900995C02 /* NWLayoutInflator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NWLayoutInflator.h; sourceTree = "<group>"; };
-		01B34AF41B71327900995C02 /* NWLayoutInflatorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NWLayoutInflatorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		01B34AFA1B71327900995C02 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		01B34AFB1B71327900995C02 /* NWLayoutInflatorTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NWLayoutInflatorTests.m; sourceTree = "<group>"; };
 		01B34B051B71333300995C02 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		01B34B071B7133B200995C02 /* NWLayoutView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NWLayoutView.h; sourceTree = "<group>"; };
 		01B34B081B7133B200995C02 /* NWLayoutView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NWLayoutView.m; sourceTree = "<group>"; };
@@ -45,8 +36,14 @@
 		01B34B0A1B7133B200995C02 /* UIColor+hexString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+hexString.m"; sourceTree = "<group>"; };
 		01B34B0B1B7133B200995C02 /* UIView+applyProperty.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+applyProperty.h"; sourceTree = "<group>"; };
 		01B34B0C1B7133B200995C02 /* UIView+applyProperty.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+applyProperty.m"; sourceTree = "<group>"; };
-		01B34B0D1B7133B200995C02 /* XMLDictionary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XMLDictionary.h; sourceTree = "<group>"; };
-		01B34B0E1B7133B200995C02 /* XMLDictionary.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XMLDictionary.m; sourceTree = "<group>"; };
+		01D861601BF2A66800CB0E8F /* NWAlertView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NWAlertView.h; sourceTree = "<group>"; };
+		01D861611BF2A66800CB0E8F /* NWAlertView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NWAlertView.m; sourceTree = "<group>"; };
+		01D861621BF2A66800CB0E8F /* NWXMLDictionary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NWXMLDictionary.h; sourceTree = "<group>"; };
+		01D861631BF2A66800CB0E8F /* NWXMLDictionary.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NWXMLDictionary.m; sourceTree = "<group>"; };
+		01D861641BF2A66800CB0E8F /* UIGestureRecognizer+Blocks.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIGestureRecognizer+Blocks.h"; sourceTree = "<group>"; };
+		01D861651BF2A66800CB0E8F /* UIGestureRecognizer+Blocks.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIGestureRecognizer+Blocks.m"; sourceTree = "<group>"; };
+		01D861661BF2A66800CB0E8F /* UITouchDownGestureRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UITouchDownGestureRecognizer.h; sourceTree = "<group>"; };
+		01D861671BF2A66800CB0E8F /* UITouchDownGestureRecognizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UITouchDownGestureRecognizer.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,14 +55,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		01B34AF11B71327900995C02 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				01B34AF51B71327900995C02 /* NWLayoutInflator.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -74,7 +63,6 @@
 			children = (
 				01B34B051B71333300995C02 /* UIKit.framework */,
 				01B34AEB1B71327900995C02 /* NWLayoutInflator */,
-				01B34AF81B71327900995C02 /* NWLayoutInflatorTests */,
 				01B34AEA1B71327900995C02 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -83,7 +71,6 @@
 			isa = PBXGroup;
 			children = (
 				01B34AE91B71327900995C02 /* NWLayoutInflator.framework */,
-				01B34AF41B71327900995C02 /* NWLayoutInflatorTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -91,14 +78,20 @@
 		01B34AEB1B71327900995C02 /* NWLayoutInflator */ = {
 			isa = PBXGroup;
 			children = (
+				01D861601BF2A66800CB0E8F /* NWAlertView.h */,
+				01D861611BF2A66800CB0E8F /* NWAlertView.m */,
+				01D861621BF2A66800CB0E8F /* NWXMLDictionary.h */,
+				01D861631BF2A66800CB0E8F /* NWXMLDictionary.m */,
+				01D861641BF2A66800CB0E8F /* UIGestureRecognizer+Blocks.h */,
+				01D861651BF2A66800CB0E8F /* UIGestureRecognizer+Blocks.m */,
+				01D861661BF2A66800CB0E8F /* UITouchDownGestureRecognizer.h */,
+				01D861671BF2A66800CB0E8F /* UITouchDownGestureRecognizer.m */,
 				01B34B071B7133B200995C02 /* NWLayoutView.h */,
 				01B34B081B7133B200995C02 /* NWLayoutView.m */,
 				01B34B091B7133B200995C02 /* UIColor+hexString.h */,
 				01B34B0A1B7133B200995C02 /* UIColor+hexString.m */,
 				01B34B0B1B7133B200995C02 /* UIView+applyProperty.h */,
 				01B34B0C1B7133B200995C02 /* UIView+applyProperty.m */,
-				01B34B0D1B7133B200995C02 /* XMLDictionary.h */,
-				01B34B0E1B7133B200995C02 /* XMLDictionary.m */,
 				01B34AEE1B71327900995C02 /* NWLayoutInflator.h */,
 				01B34AEC1B71327900995C02 /* Supporting Files */,
 			);
@@ -113,23 +106,6 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		01B34AF81B71327900995C02 /* NWLayoutInflatorTests */ = {
-			isa = PBXGroup;
-			children = (
-				01B34AFB1B71327900995C02 /* NWLayoutInflatorTests.m */,
-				01B34AF91B71327900995C02 /* Supporting Files */,
-			);
-			path = NWLayoutInflatorTests;
-			sourceTree = "<group>";
-		};
-		01B34AF91B71327900995C02 /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				01B34AFA1B71327900995C02 /* Info.plist */,
-			);
-			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -137,11 +113,14 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				01B34B151B7133B200995C02 /* XMLDictionary.h in Headers */,
 				01B34B0F1B7133B200995C02 /* NWLayoutView.h in Headers */,
 				01B34B111B7133B200995C02 /* UIColor+hexString.h in Headers */,
 				01B34AEF1B71327900995C02 /* NWLayoutInflator.h in Headers */,
+				01D861681BF2A66800CB0E8F /* NWAlertView.h in Headers */,
+				01D8616E1BF2A66800CB0E8F /* UITouchDownGestureRecognizer.h in Headers */,
+				01D8616C1BF2A66800CB0E8F /* UIGestureRecognizer+Blocks.h in Headers */,
 				01B34B131B7133B200995C02 /* UIView+applyProperty.h in Headers */,
+				01D8616A1BF2A66800CB0E8F /* NWXMLDictionary.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -166,24 +145,6 @@
 			productReference = 01B34AE91B71327900995C02 /* NWLayoutInflator.framework */;
 			productType = "com.apple.product-type.framework";
 		};
-		01B34AF31B71327900995C02 /* NWLayoutInflatorTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 01B34B021B71327900995C02 /* Build configuration list for PBXNativeTarget "NWLayoutInflatorTests" */;
-			buildPhases = (
-				01B34AF01B71327900995C02 /* Sources */,
-				01B34AF11B71327900995C02 /* Frameworks */,
-				01B34AF21B71327900995C02 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				01B34AF71B71327900995C02 /* PBXTargetDependency */,
-			);
-			name = NWLayoutInflatorTests;
-			productName = NWLayoutInflatorTests;
-			productReference = 01B34AF41B71327900995C02 /* NWLayoutInflatorTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -194,9 +155,6 @@
 				ORGANIZATIONNAME = "Nicholas White";
 				TargetAttributes = {
 					01B34AE81B71327900995C02 = {
-						CreatedOnToolsVersion = 6.4;
-					};
-					01B34AF31B71327900995C02 = {
 						CreatedOnToolsVersion = 6.4;
 					};
 				};
@@ -214,20 +172,12 @@
 			projectRoot = "";
 			targets = (
 				01B34AE81B71327900995C02 /* NWLayoutInflator */,
-				01B34AF31B71327900995C02 /* NWLayoutInflatorTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		01B34AE71B71327900995C02 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		01B34AF21B71327900995C02 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -241,30 +191,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				01D861691BF2A66800CB0E8F /* NWAlertView.m in Sources */,
 				01B34B141B7133B200995C02 /* UIView+applyProperty.m in Sources */,
-				01B34B161B7133B200995C02 /* XMLDictionary.m in Sources */,
 				01B34B121B7133B200995C02 /* UIColor+hexString.m in Sources */,
 				01B34B101B7133B200995C02 /* NWLayoutView.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		01B34AF01B71327900995C02 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				01B34AFC1B71327900995C02 /* NWLayoutInflatorTests.m in Sources */,
+				01D8616F1BF2A66800CB0E8F /* UITouchDownGestureRecognizer.m in Sources */,
+				01D8616B1BF2A66800CB0E8F /* NWXMLDictionary.m in Sources */,
+				01D8616D1BF2A66800CB0E8F /* UIGestureRecognizer+Blocks.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		01B34AF71B71327900995C02 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 01B34AE81B71327900995C02 /* NWLayoutInflator */;
-			targetProxy = 01B34AF61B71327900995C02 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		01B34AFD1B71327900995C02 /* Debug */ = {
@@ -392,36 +329,6 @@
 			};
 			name = Release;
 		};
-		01B34B031B71327900995C02 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-				);
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				INFOPLIST_FILE = NWLayoutInflatorTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Debug;
-		};
-		01B34B041B71327900995C02 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-				);
-				INFOPLIST_FILE = NWLayoutInflatorTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -439,15 +346,6 @@
 			buildConfigurations = (
 				01B34B001B71327900995C02 /* Debug */,
 				01B34B011B71327900995C02 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		01B34B021B71327900995C02 /* Build configuration list for PBXNativeTarget "NWLayoutInflatorTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				01B34B031B71327900995C02 /* Debug */,
-				01B34B041B71327900995C02 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
