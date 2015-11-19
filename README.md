@@ -47,4 +47,6 @@ You can nest UIViews:
 </UIView>
 ```
 
-Warning: I don't think sizeToFit works on containers of other UIViews right now.
+`sizeToFit="1"` will also work on containers, but beware that there is no padding, and margins are not taken into consideration for size purposes, only for positioning the subviews themselves. I currently use empty `UIView`s as spacers. I know, that's lame, so I'll probably fix the layout soonish.
+
+New: You can now set any value to a variable using curly brackets: `text="{{ user_name }}"` and `[layoutView setDictValue:@"Nick" forKey:@"user_name"]`. If you change values, you may want to force layout to happen again, such as by setting the frame: `layoutView.frame = layoutView.frame;`
