@@ -10,6 +10,7 @@
 
 @interface NWLayoutView : UIView
 
+@property (strong, nonatomic) NSDictionary *dictValues;
 @property (strong, nonatomic) NSString* layoutName;
 @property (weak, nonatomic) id delegate;
 
@@ -24,6 +25,10 @@
 - (void)chooseSegment:(UISegmentedControl*)control;
 - (void)fixContentSize:(UIScrollView*)scrollView;
 - (NSMutableDictionary*)getFormValues;
+- (NSString*)getDictValue:(NSString*)varExpr;
+- (NSString*)getDictValue:(NSString*)varExpr forNode:(UIView*)node property:(NSString*)property;
+// Note that you should re-layout (view.frame = view.frame will do this) after changing any text or size properties
+- (void)setDictValue:(NSString*)value forKey:(NSString*)key;
 
 + (void)setXML:(NSString*)xml forName:(NSString*)name;
 + (void)revertXMLforName:(NSString*)name;

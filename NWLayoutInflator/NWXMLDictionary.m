@@ -76,6 +76,7 @@
         _alwaysUseArrays = NO;
         _preserveComments = NO;
         _wrapRootNode = NO;
+        _childMode = NWXMLDictionaryChildModeArray;
     }
     return self;
 }
@@ -267,27 +268,31 @@
 	else
 	{
         NSMutableDictionary *top = [_stack lastObject];
-		id existing = top[elementName];
-        if ([existing isKindOfClass:[NSArray class]])
-        {
-            [existing addObject:node];
+        if (_childMode == NWXMLDictionaryChildModeDict || _childMode == NWXMLDictionaryChildModeBoth) {
+            id existing = top[elementName];
+            if ([existing isKindOfClass:[NSArray class]])
+            {
+                [existing addObject:node];
+            }
+            else if (existing)
+            {
+                top[elementName] = [@[existing, node] mutableCopy];
+            }
+            else if (_alwaysUseArrays)
+            {
+                top[elementName] = [NSMutableArray arrayWithObject:node];
+            }
+            else
+            {
+                top[elementName] = node;
+            }
         }
-        else if (existing)
-        {
-            top[elementName] = [@[existing, node] mutableCopy];
-        }
-        else if (_alwaysUseArrays)
-        {
-            top[elementName] = [NSMutableArray arrayWithObject:node];
-        }
-		else
-		{
-			top[elementName] = node;
-		}
-        if (top[NWXMLDictionaryChildNodesKey]) {
-            [top[NWXMLDictionaryChildNodesKey] addObject:node];
-        } else {
-            top[NWXMLDictionaryChildNodesKey] = [NSMutableArray arrayWithObject:node];
+        if (_childMode == NWXMLDictionaryChildModeArray || _childMode == NWXMLDictionaryChildModeBoth) {
+            if (top[NWXMLDictionaryChildNodesKey]) {
+                [top[NWXMLDictionaryChildNodesKey] addObject:node];
+            } else {
+                top[NWXMLDictionaryChildNodesKey] = [NSMutableArray arrayWithObject:node];
+            }
         }
 		[_stack addObject:node];
 	}

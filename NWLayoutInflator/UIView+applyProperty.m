@@ -15,6 +15,11 @@
 @implementation UIView (applyProperty)
 
 - (void)applyProperty:(NSString*)name value:(NSString*)value layoutView:(NWLayoutView*)layoutView {
+    if ([value respondsToSelector:@selector(hasPrefix:)]) {
+        if ([value hasPrefix:@"{{"] && [value hasSuffix:@"}}"]) {
+            value = [layoutView getDictValue:[value substringWithRange:NSMakeRange(2, value.length - 4)] forNode:self property:name];
+        }
+    }
     SEL s = NSSelectorFromString([NSString stringWithFormat:@"apply_%@:layoutView:", name]);
     if ([self respondsToSelector:s]) {
         IMP imp = [self methodForSelector:s];
@@ -36,6 +41,10 @@
             }
         }
     }
+}
+
+- (void)apply_hidden:(NSString*)value layoutView:(NWLayoutView*)layoutView {
+    [self setHidden:[value isEqualToString:@"1"] || [[value lowercaseString] isEqualToString:@"yes"]];
 }
 
 - (UIColor *)colorNamed:(NSString*)name {

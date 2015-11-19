@@ -24,6 +24,8 @@
         @{@"orange": @"#FABA43"}];
 
     _layoutView = [[NWLayoutView alloc] initWithLayout:@"testLayout" andFrame:self.view.bounds andDelegate:self];
+    [_layoutView setDictValue:@"right side key" forKey:@"right_side"];
+    [_layoutView setFrame:self.view.bounds];
     [self.view addSubview:_layoutView];
 }
 

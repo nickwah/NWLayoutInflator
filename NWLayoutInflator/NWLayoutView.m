@@ -21,6 +21,8 @@ static NSMutableDictionary *_namedColors;
     NSMutableDictionary *_attributesById; // NSString -> NSDictionary
     NSMutableArray *_segmentedControls;
     NSMutableArray *_allNodes; // array of nsdictionaries, each dict has attributes and @"node"
+    NSMutableDictionary *_dataMappedNodes;
+    NSMutableDictionary *_dictValues;
 }
 
 @synthesize layoutName = _layoutName;
@@ -42,9 +44,10 @@ static NSMutableDictionary *_namedColors;
     if (!_layoutKeys) {
         _layoutKeys = [NSSet setWithObjects:@"id", @"width", @"height", @"x", @"y", @"alignLeft", @"alignTop", @"margin", @"marginLeft", @"marginTop", @"marginRight", @"marginBottom", nil];
     }
-    if (!_namedColors) {
-        _namedColors = [NSMutableDictionary dictionaryWithObjectsAndKeys:[UIColor whiteColor], @"white", [UIColor blackColor], @"black", nil];
-    }
+    if (!_namedColors[@"white"]) [NWLayoutView setColor:[UIColor whiteColor] forName:@"white"];
+    if (!_namedColors[@"black"]) [NWLayoutView setColor:[UIColor blackColor] forName:@"black"];
+    _dataMappedNodes = [NSMutableDictionary dictionary];
+    _dictValues = [NSMutableDictionary dictionary];
 }
 
 - (instancetype)initWithLayout:(NSString*)layoutName {
@@ -182,7 +185,10 @@ static NSMutableDictionary *_namedColors;
         }
     }
 }
-CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal) {
+CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal, NWLayoutView* instance) {
+    if ([value hasPrefix:@"{{"] && [value hasSuffix:@"}}"]) {
+        value = [instance getDictValue:[value substringWithRange:NSMakeRange(2, value.length - 4)]];
+    }
     if ([value hasSuffix:@"%"]) {
         if (horizontal) {
             return [view superview].bounds.size.width * [[value substringToIndex:value.length - 1] floatValue] / 100.0f;
@@ -203,13 +209,13 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal) {
                 _childrenById[value] = view;
                 _attributesById[value] = attributes;
             } else if ([key isEqualToString:@"width"]) {
-                frame.size.width = parseValue(value, view, YES);
+                frame.size.width = parseValue(value, view, YES, self);
             } else if ([key isEqualToString:@"height"]) {
-                frame.size.height = parseValue(value, view, NO);
+                frame.size.height = parseValue(value, view, NO, self);
             } else if ([key isEqualToString:@"x"]) {
-                frame.origin.x = parseValue(value, view, YES);
+                frame.origin.x = parseValue(value, view, YES, self);
             } else if ([key isEqualToString:@"y"]) {
-                frame.origin.y = parseValue(value, view, NO);
+                frame.origin.y = parseValue(value, view, NO, self);
             } else if ([key isEqualToString:@"alignLeft"]) {
                 UIView *other = _childrenById[value];
                 frame.origin.x = other.frame.origin.x;
@@ -217,15 +223,15 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal) {
                 UIView *other = _childrenById[value];
                 frame.origin.y = other.frame.origin.y;
             } else if ([key isEqualToString:@"marginTop"]) {
-                margin.top = parseValue(value, view, NO);
+                margin.top = parseValue(value, view, NO, self);
             } else if ([key isEqualToString:@"marginLeft"]) {
-                margin.left = parseValue(value, view, YES);
+                margin.left = parseValue(value, view, YES, self);
             } else if ([key isEqualToString:@"marginBottom"]) {
-                margin.bottom = parseValue(value, view, NO);
+                margin.bottom = parseValue(value, view, NO, self);
             } else if ([key isEqualToString:@"marginRight"]) {
-                margin.right = parseValue(value, view, YES);
+                margin.right = parseValue(value, view, YES, self);
             } else if ([key isEqualToString:@"margin"]) {
-                CGFloat floatVal = parseValue(value, view, YES);
+                CGFloat floatVal = parseValue(value, view, YES, self);
                 margin = UIEdgeInsetsMake(floatVal, floatVal, floatVal, floatVal);
             }
         } else if (!layoutOnly) {
@@ -250,10 +256,10 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal) {
         frame.origin.y = other.frame.origin.y + other.frame.size.height;
     } else if (attributes[@"bottom"]) {
         if (frame.origin.y) {
-            frame.size.height = [view superview].bounds.size.height - frame.origin.y - parseValue(attributes[@"bottom"], view, NO);
+            frame.size.height = [view superview].bounds.size.height - frame.origin.y - parseValue(attributes[@"bottom"], view, NO, self);
             sizeChanged = YES;
         } else {
-            frame.origin.y = [view superview].bounds.size.height - frame.size.height - parseValue(attributes[@"bottom"], view, NO);
+            frame.origin.y = [view superview].bounds.size.height - frame.size.height - parseValue(attributes[@"bottom"], view, NO, self);
         }
         if (margin.bottom) frame.origin.y -= margin.bottom;
     } else if (attributes[@"centerVertical"]) {
@@ -274,10 +280,10 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal) {
     }
     if (attributes[@"right"]) {
         if (frame.origin.x) {
-            frame.size.width = [view superview].bounds.size.width - frame.origin.x - parseValue(attributes[@"right"], view, YES);
+            frame.size.width = [view superview].bounds.size.width - frame.origin.x - parseValue(attributes[@"right"], view, YES, self);
             sizeChanged = YES;
         } else {
-            frame.origin.x = [view superview].bounds.size.width - frame.size.width - parseValue(attributes[@"right"], view, YES);
+            frame.origin.x = [view superview].bounds.size.width - frame.size.width - parseValue(attributes[@"right"], view, YES, self);
             if (margin.right) frame.origin.x -= margin.right;
         }
     }
@@ -360,7 +366,7 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal) {
 }
 
 + (UIColor*)namedColor:(NSString*)name {
-    return _namedColors[name];
+    return _namedColors[name] ?: [UIColor clearColor];
 }
 
 + (void)setColor:(UIColor*)color forName:(NSString*)name {
@@ -457,6 +463,53 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal) {
         }
     }
     return values;
+}
+
+- (NSString*)getDictValue:(NSString *)varExpr forNode:(UIView *)node property:(NSString*)property {
+    varExpr = [varExpr stringByTrimmingCharactersInSet:
+               [NSCharacterSet whitespaceCharacterSet]];
+    // TODO: add basic filter support, eg formatting numbers
+    // TODO: support a.b
+    if (_dataMappedNodes[varExpr]) {
+        if (_dataMappedNodes[varExpr][property]) {
+            [_dataMappedNodes[varExpr][property] addObject:node];
+        } else {
+            _dataMappedNodes[varExpr][property] = [NSMutableArray arrayWithObject:node];
+        }
+    } else {
+        _dataMappedNodes[varExpr] = [NSMutableDictionary dictionaryWithObject:[NSMutableArray arrayWithObject:node] forKey:property];
+    }
+    return [self getDictValue:varExpr];
+}
+
+- (NSString*)getDictValue:(NSString *)varExpr {
+    return _dictValues[varExpr] ?: @"";
+}
+
+- (NSDictionary*)dictValues {
+    return _dictValues;
+}
+
+- (void)setDictValues:(NSDictionary *)dictValues {
+    _dictValues = [dictValues mutableCopy];
+    for (NSString *key in _dataMappedNodes) {
+        for (NSString *valueKey in _dataMappedNodes[key]) {
+            NSArray *nodes = _dataMappedNodes[key][valueKey];
+            for (UIView *node in nodes) {
+                [node applyProperty:valueKey value:_dictValues[valueKey] layoutView:self];
+            }
+        }
+    }
+}
+
+- (void)setDictValue:(NSString*)value forKey:(NSString*)key {
+    _dictValues[key] = value;
+    for (NSString *valueKey in _dataMappedNodes[key]) {
+        NSArray *nodes = _dataMappedNodes[key][valueKey];
+        for (UIView *node in nodes) {
+            [node applyProperty:valueKey value:value layoutView:self];
+        }
+    }
 }
 
 @end

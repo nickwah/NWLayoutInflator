@@ -1,10 +1,10 @@
 <NWLayoutView>
-    <UILabel text="Hello World!" id="label" x="20" y="50" sizeToFit="1" backgroundColor="orange" color="black" />
-    <UIButton id="clickme" onclick="moveFrame" text="Click Me" textColor="white" cornerRadius="5" below="label" alignLeft="label" sizeToFit="1" backgroundColor="#40FF0000" marginTop="5" borderColor="black" borderWidth="1" />
+    <UILabel text="Hello World!" id="label" x="20" y="50" sizeToFit="1" backgroundColor="orange" textColor="black" />
+    <UIButton id="clickme" onclick="moveFrame" text="Click Me" textColor="#FFFFFF" cornerRadius="5" below="label" alignLeft="label" sizeToFit="1" backgroundColor="#40FF0000" marginTop="5" borderColor="#000000" borderWidth="1" />
     <UILabel id="ontheright" text="on the right" sizeToFit="1" textColor="#D030A0" toRightOf="clickme" alignTop="clickme" marginLeft="10" />
     <UIImageView id="image" below="ontheright" alignLeft="ontheright" width="50" height="50" imageNamed="camera_button_blue" />
     <UIView id="container" width="250" y="100" x="0" height="100" borderColor="#FF0000" borderWidth="2">
         <UILabel x="0" sizeToFit="1" text="Left side" />
-        <UILabel right="0" sizeToFit="1" text="Right side" />
+        <UILabel right="0" sizeToFit="1" text="{{ right_side }}" />
     </UIView>
 </NWLayoutView>

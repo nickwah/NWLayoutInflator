@@ -50,6 +50,12 @@ typedef NS_ENUM(NSInteger, NWXMLDictionaryNodeNameMode)
     NWXMLDictionaryNodeNameModeNever
 };
 
+typedef enum : NSUInteger {
+    NWXMLDictionaryChildModeDict,
+    NWXMLDictionaryChildModeArray,
+    NWXMLDictionaryChildModeBoth,
+} NWXMLDictionaryChildMode;
+
 
 static NSString *const NWXMLDictionaryAttributesKey   = @"__attributes";
 static NSString *const NWXMLDictionaryCommentsKey     = @"__comments";
@@ -72,6 +78,7 @@ static NSString *const NWXMLDictionaryChildNodesKey   = @"__childNodes";
 
 @property (nonatomic, assign) NWXMLDictionaryAttributesMode attributesMode;
 @property (nonatomic, assign) NWXMLDictionaryNodeNameMode nodeNameMode;
+@property (nonatomic) NWXMLDictionaryChildMode childMode;
 
 - (NSDictionary *)dictionaryWithParser:(NSXMLParser *)parser;
 - (NSDictionary *)dictionaryWithData:(NSData *)data;
