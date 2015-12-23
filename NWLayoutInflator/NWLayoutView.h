@@ -32,6 +32,8 @@
 
 + (void)setXML:(NSString*)xml forName:(NSString*)name;
 + (void)revertXMLforName:(NSString*)name;
++ (void)setCSS:(NSString*)css forName:(NSString*)name;
++ (void)revertCSSforName:(NSString*)name;
 + (UIColor*)namedColor:(NSString*)name;
 + (void)setColor:(UIColor*)color forName:(NSString*)name;
 + (void)addColorsFromDictionary:(NSDictionary*)colors; // NSString -> NSString of hex color

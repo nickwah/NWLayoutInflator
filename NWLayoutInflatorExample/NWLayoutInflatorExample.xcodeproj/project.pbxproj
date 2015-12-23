@@ -18,6 +18,7 @@
 		01B34B4D1B7135E000995C02 /* camera_button_blue@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 01B34B4A1B7135E000995C02 /* camera_button_blue@2x.png */; };
 		01B34B4E1B7135E000995C02 /* testLayout.xml in Resources */ = {isa = PBXBuildFile; fileRef = 01B34B4B1B7135E000995C02 /* testLayout.xml */; };
 		01B34B5B1B713B9100995C02 /* NWLayoutInflator.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01B34B551B71360900995C02 /* NWLayoutInflator.framework */; };
+		01E9AAAE1C2AFA3900F92497 /* testStyle.css in Resources */ = {isa = PBXBuildFile; fileRef = 01E9AAAD1C2AFA3900F92497 /* testStyle.css */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -55,6 +56,7 @@
 		01B34B4A1B7135E000995C02 /* camera_button_blue@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "camera_button_blue@2x.png"; sourceTree = "<group>"; };
 		01B34B4B1B7135E000995C02 /* testLayout.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = testLayout.xml; sourceTree = "<group>"; };
 		01B34B4F1B71360900995C02 /* NWLayoutInflator.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = NWLayoutInflator.xcodeproj; path = ../NWLayoutInflator.xcodeproj; sourceTree = "<group>"; };
+		01E9AAAD1C2AFA3900F92497 /* testStyle.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.css; path = testStyle.css; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -109,6 +111,7 @@
 				01B34B301B71358400995C02 /* Images.xcassets */,
 				01B34B321B71358400995C02 /* LaunchScreen.xib */,
 				01B34B231B71358400995C02 /* Supporting Files */,
+				01E9AAAD1C2AFA3900F92497 /* testStyle.css */,
 			);
 			path = NWLayoutInflatorExample;
 			sourceTree = "<group>";
@@ -245,6 +248,7 @@
 			files = (
 				01B34B4D1B7135E000995C02 /* camera_button_blue@2x.png in Resources */,
 				01B34B4E1B7135E000995C02 /* testLayout.xml in Resources */,
+				01E9AAAE1C2AFA3900F92497 /* testStyle.css in Resources */,
 				01B34B4C1B7135E000995C02 /* camera_button_blue.png in Resources */,
 				01B34B2F1B71358400995C02 /* Main.storyboard in Resources */,
 				01B34B341B71358400995C02 /* LaunchScreen.xib in Resources */,

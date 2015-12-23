@@ -15,6 +15,7 @@ static NSMutableDictionary *_cachedXML;
 static NSMutableDictionary *_parsedCache;
 static NSSet *_layoutKeys;
 static NSMutableDictionary *_namedColors;
+static NSMutableDictionary *_parsedStyles;
 
 @implementation NWLayoutView {
     NSMutableDictionary *_childrenById; // NSString -> UIView
@@ -23,6 +24,7 @@ static NSMutableDictionary *_namedColors;
     NSMutableArray *_allNodes; // array of nsdictionaries, each dict has attributes and @"node"
     NSMutableDictionary *_dataMappedNodes;
     NSMutableDictionary *_dictValues;
+    NSMutableDictionary *_styleSheet;
 }
 
 @synthesize layoutName = _layoutName;
@@ -44,6 +46,7 @@ static NSMutableDictionary *_namedColors;
     if (!_layoutKeys) {
         _layoutKeys = [NSSet setWithObjects:@"id", @"width", @"height", @"x", @"y", @"alignLeft", @"alignTop", @"margin", @"marginLeft", @"marginTop", @"marginRight", @"marginBottom", nil];
     }
+    if (!_parsedStyles) _parsedStyles = [NSMutableDictionary dictionary];
     if (!_namedColors[@"white"]) [NWLayoutView setColor:[UIColor whiteColor] forName:@"white"];
     if (!_namedColors[@"black"]) [NWLayoutView setColor:[UIColor blackColor] forName:@"black"];
     _dataMappedNodes = [NSMutableDictionary dictionary];
@@ -77,11 +80,23 @@ static NSMutableDictionary *_namedColors;
 }
 
 + (void)setXML:(NSString*)xml forName:(NSString*)name {
+    [self setContents:xml forFile:name ofType:@"xml"];
+}
++ (void)revertXMLforName:(NSString*)name {
+    [self revertFileforName:name ofType:@"xml"];
+}
++ (void)setCSS:(NSString*)css forName:(NSString*)name {
+    [self setContents:css forFile:name ofType:@"css"];
+}
++ (void)revertCSSforName:(NSString*)name {
+    [self revertFileforName:name ofType:@"css"];
+}
++ (void)setContents:(NSString*)xml forFile:(NSString*)name ofType:(NSString*)type {
     _cachedXML[name] = xml;
     
     // Build the path, and create if needed.
     NSString* filePath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
-    NSString* fileName = [NSString stringWithFormat:@"%@.xml", name];
+    NSString* fileName = [NSString stringWithFormat:@"%@.%@", name, type];
     NSString* fileAtPath = [filePath stringByAppendingPathComponent:fileName];
     
     if (![[NSFileManager defaultManager] fileExistsAtPath:fileAtPath]) {
@@ -91,9 +106,9 @@ static NSMutableDictionary *_namedColors;
     [[xml dataUsingEncoding:NSUTF8StringEncoding] writeToFile:fileAtPath atomically:NO];
 }
 
-+ (void)revertXMLforName:(NSString*)name {
++ (void)revertFileforName:(NSString*)name ofType:(NSString*)type {
     NSString* filePath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
-    NSString* fileName = [NSString stringWithFormat:@"%@.xml", name];
+    NSString* fileName = [NSString stringWithFormat:@"%@.%@", name, type];
     NSString* fileAtPath = [filePath stringByAppendingPathComponent:fileName];
     
     if ([[NSFileManager defaultManager] fileExistsAtPath:fileAtPath]) {
@@ -122,6 +137,90 @@ static NSMutableDictionary *_namedColors;
     return xmlLayout;
 }
 
++ (NSString*)getCSSforName:(NSString*)name {
+    NSString* filePath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+    NSString* fileName = [NSString stringWithFormat:@"%@.css", name];
+    NSString* fileAtPath = [filePath stringByAppendingPathComponent:fileName];
+    
+    if (![[NSFileManager defaultManager] fileExistsAtPath:fileAtPath]) {
+        fileAtPath = [[NSBundle mainBundle] pathForResource:name ofType:@"css"];
+    }
+    return [NSString stringWithContentsOfFile:fileAtPath
+                                     encoding:NSUTF8StringEncoding
+                                        error:NULL];
+}
+
++ (NSMutableDictionary*)parseCSS:(NSString*)css {
+    NSError *error;
+    NSRegularExpression *regex = [NSRegularExpression
+                                  regularExpressionWithPattern:@"[/][*].*?[*][/]" options:NSRegularExpressionDotMatchesLineSeparators error:&error];
+    css = [regex stringByReplacingMatchesInString:css options:0 range:NSMakeRange(0, css.length) withTemplate:@""];
+    regex = [NSRegularExpression
+             regularExpressionWithPattern:@"[/][/].*?\n" options:0 error:&error];
+    css = [regex stringByReplacingMatchesInString:css options:0 range:NSMakeRange(0, css.length) withTemplate:@""];
+    css = [css stringByReplacingOccurrencesOfString:@"\n" withString:@" "];
+    NSUInteger pos = 0;
+    NSMutableDictionary *classes = [NSMutableDictionary dictionary];
+    NSMutableDictionary *ids = [NSMutableDictionary dictionary];
+    while (pos < css.length) {
+        unichar ch = [css characterAtIndex:pos];
+        if (ch == '\n' || ch == ' ' || ch == '\t') {
+            pos++;
+            continue;
+        }
+        NSString *name = nil;
+        BOOL isId = NO;
+        if (ch == '.' || ch == '#') {
+            isId = (ch == '#');
+            pos++;
+            NSRange curly = [css rangeOfString:@"{" options:0 range:NSMakeRange(pos, css.length - pos)];
+            if (curly.location == NSNotFound) break;
+            name = [css substringWithRange:NSMakeRange(pos, curly.location - pos)];
+            name = [name stringByReplacingOccurrencesOfString:@" " withString:@""];
+            
+            pos = curly.location + 1;
+            curly = [css rangeOfString:@"}" options:0 range:NSMakeRange(pos, css.length - pos)];
+            if (curly.location == NSNotFound) break;
+            NSString *contents = [css substringWithRange:NSMakeRange(pos, curly.location - pos)];
+            NSMutableDictionary *styles = [NSMutableDictionary dictionary];
+            NSArray *chunks = [contents componentsSeparatedByString:@";"];
+            for (NSString *chunk in chunks) {
+                NSRange colon = [chunk rangeOfString:@":"];
+                if (colon.location == NSNotFound) continue;
+                NSString *key = [chunk substringToIndex:colon.location];
+                NSString *value = [chunk substringFromIndex:colon.location + 1];
+                styles[[key stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]] = [value stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+            }
+            if (isId) {
+                ids[name] = styles;
+            } else {
+                classes[name] = styles;
+            }
+            pos = curly.location + 1;
+        } else {
+            pos++;
+        }
+    }
+    return [NSMutableDictionary dictionaryWithObjectsAndKeys:classes, @"classes", ids, @"ids", nil];
+}
+
+- (void)loadStylesheet:(NSString*)name {
+    _styleSheet = _parsedStyles[name];
+    if (!_styleSheet) {
+        NSString *css = [NWLayoutView getCSSforName:name];
+        _styleSheet = [NWLayoutView parseCSS:css];
+        _parsedStyles[name] = _styleSheet;
+    }
+}
+
+- (NSMutableDictionary*)getStyleForClass:(NSString*)class {
+    return _styleSheet[@"classes"][class];
+}
+
+- (NSMutableDictionary*)getStyleForId:(NSString*)class {
+    return _styleSheet[@"ids"][class];
+}
+
 - (void)parseLayout {
     _childrenById = [NSMutableDictionary dictionary];
     _attributesById = [NSMutableDictionary dictionary];
@@ -143,6 +242,9 @@ static NSMutableDictionary *_namedColors;
         }
         root = [NSDictionary NWdictionaryWithXMLString:xmlLayout];
         _parsedCache[_layoutName] = root;
+    }
+    if (root.safeAttributesNW[@"stylesheet"]) {
+        [self loadStylesheet:root.safeAttributesNW[@"stylesheet"]];
     }
     [_allNodes addObject:@{@"view": self, @"attributes": [root safeAttributesNW], @"root": @YES}];
     [self createAndAddChildNodes:[root childNodesNW] To:self];
@@ -199,6 +301,20 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal, NWLayoutView*
     return [value floatValue];
 }
 - (void)applyAttributes:(NSDictionary*)attributes To:(UIView*)view layoutOnly:(BOOL)layoutOnly {
+    if (attributes[@"class"] || attributes[@"id"]) {
+        NSMutableDictionary *classDict = [NSMutableDictionary dictionary];
+        if (attributes[@"class"]) {
+            NSArray *classes = [attributes[@"class"] componentsSeparatedByString:@" "];
+            for (NSString *class in classes) {
+                [classDict addEntriesFromDictionary:[self getStyleForClass:class]];
+            }
+        }
+        [classDict addEntriesFromDictionary:[self getStyleForId:attributes[@"id"]]];
+        if (classDict && classDict.count) {
+            [classDict addEntriesFromDictionary:attributes];
+            attributes = classDict;
+        }
+    }
     //NSLog(@"Applying %lu attributes to view", (unsigned long)attributes.count);
     CGRect frame = CGRectMake(0,0,0,0);
     UIEdgeInsets margin = UIEdgeInsetsMake(0, 0, 0, 0);

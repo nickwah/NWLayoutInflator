@@ -1,0 +1,10 @@
+/* This is a test */
+
+.colors {
+    backgroundColor: #00FFFF;
+    borderColor: #FFFF00;
+}
+
+.sizes {
+    font: systemFontOfSize:24
+}
