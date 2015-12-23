@@ -116,6 +116,28 @@
     }
 }
 
+- (void)apply_shadowColor:(NSString*)value layoutView:(NWLayoutView*)layoutView {
+    if ([self.layer respondsToSelector:@selector(setShadowColor:)]) {
+        [self.layer setShadowColor:[[self colorNamed:value] CGColor]];
+        self.layer.shadowOpacity = 1.0f;
+        self.layer.masksToBounds = NO;
+        self.layer.shouldRasterize = YES;
+    }
+}
+
+- (void)apply_shadowOffset:(NSString*)value layoutView:(NWLayoutView*)layoutView {
+    if ([self.layer respondsToSelector:@selector(setShadowOffset:)]) {
+        CGSize offset = CGSizeFromString([NSString stringWithFormat:@"{%@}", value]);
+        [self.layer setShadowOffset:offset];
+    }
+}
+
+- (void)apply_shadowRadius:(NSString*)value layoutView:(NWLayoutView*)layoutView {
+    if ([self.layer respondsToSelector:@selector(setShadowRadius:)]) {
+        [self.layer setShadowRadius:[value floatValue]];
+    }
+}
+
 - (void)apply_cornerRadius:(NSString*)value layoutView:(NWLayoutView*)layoutView {
     self.layer.masksToBounds = YES;
     self.layer.cornerRadius = [value floatValue];
