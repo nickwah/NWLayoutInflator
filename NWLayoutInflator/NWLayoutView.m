@@ -204,12 +204,17 @@ static NSMutableDictionary *_parsedStyles;
     return [NSMutableDictionary dictionaryWithObjectsAndKeys:classes, @"classes", ids, @"ids", nil];
 }
 
-- (void)loadStylesheet:(NSString*)name {
-    _styleSheet = _parsedStyles[name];
-    if (!_styleSheet) {
-        NSString *css = [NWLayoutView getCSSforName:name];
-        _styleSheet = [NWLayoutView parseCSS:css];
-        _parsedStyles[name] = _styleSheet;
+- (void)loadStylesheet:(NSString*)nameList {
+    NSArray *names = [nameList componentsSeparatedByString:@" "];
+    _styleSheet = [NSMutableDictionary dictionaryWithObjectsAndKeys:[NSMutableDictionary dictionary], @"classes", [NSMutableDictionary dictionary], @"ids", nil];
+    for (NSString *name in names) {
+        if (!_parsedStyles[name]) {
+            NSString *css = [NWLayoutView getCSSforName:name];
+            _styleSheet = [NWLayoutView parseCSS:css];
+            _parsedStyles[name] = _styleSheet;
+        }
+        [_styleSheet[@"classes"] addEntriesFromDictionary:_parsedStyles[name][@"classes"]];
+        [_styleSheet[@"ids"] addEntriesFromDictionary:_parsedStyles[name][@"ids"]];
     }
 }
 
