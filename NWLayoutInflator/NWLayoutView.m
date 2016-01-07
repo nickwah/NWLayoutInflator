@@ -10,6 +10,7 @@
 #import "NWXMLDictionary.h"
 #import "UIView+applyProperty.h"
 #import "UIColor+hexString.h"
+#import "NWWrappedView.h"
 
 static NSMutableDictionary *_cachedXML;
 static NSMutableDictionary *_parsedCache;
@@ -23,6 +24,7 @@ static NSMutableDictionary *_parsedStyles;
     NSMutableArray *_segmentedControls;
     NSMutableArray *_allNodes; // array of nsdictionaries, each dict has attributes and @"node"
     NSMutableDictionary *_dataMappedNodes;
+    __weak NSDictionary *_lastDictValues;
     NSMutableDictionary *_dictValues;
     NSMutableDictionary *_styleSheet;
 }
@@ -152,6 +154,7 @@ static NSMutableDictionary *_parsedStyles;
 
 + (NSMutableDictionary*)parseCSS:(NSString*)css {
     NSError *error;
+    if (!css) return nil;
     NSRegularExpression *regex = [NSRegularExpression
                                   regularExpressionWithPattern:@"[/][*].*?[*][/]" options:NSRegularExpressionDotMatchesLineSeparators error:&error];
     css = [regex stringByReplacingMatchesInString:css options:0 range:NSMakeRange(0, css.length) withTemplate:@""];
@@ -210,8 +213,8 @@ static NSMutableDictionary *_parsedStyles;
     for (NSString *name in names) {
         if (!_parsedStyles[name]) {
             NSString *css = [NWLayoutView getCSSforName:name];
-            _styleSheet = [NWLayoutView parseCSS:css];
-            _parsedStyles[name] = _styleSheet;
+            NSMutableDictionary *styleSheet = [NWLayoutView parseCSS:css];
+            _parsedStyles[name] = styleSheet;
         }
         [_styleSheet[@"classes"] addEntriesFromDictionary:_parsedStyles[name][@"classes"]];
         [_styleSheet[@"ids"] addEntriesFromDictionary:_parsedStyles[name][@"ids"]];
@@ -238,8 +241,9 @@ static NSMutableDictionary *_parsedStyles;
         // TODO: raise an exception
         [NSException raise:@"Layout not found" format:@"%@ is null", _layoutName];
     }
-    NSDictionary *root = _parsedCache[_layoutName];
-    if (!root) {
+    id cached = _parsedCache[_layoutName];
+    NSDictionary *root;
+    if (!cached) {
         NSString *xmlLayout = [NWLayoutView getXMLforName:_layoutName];
         if (!xmlLayout) {
             NSLog(@"ERROR: unable to locate %@", _layoutName);
@@ -368,7 +372,14 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal, NWLayoutView*
         if (origSize.width) frame.size.width = origSize.width;
         if (origSize.height) frame.size.height = origSize.height;
     }
-    if (attributes[@"above"]) {
+    if (attributes[@"above"] && attributes[@"below"]) {
+        UIView *other = _childrenById[attributes[@"below"]];
+        frame.origin.y = other.frame.origin.y + other.frame.size.height + margin.top;
+        other = _childrenById[attributes[@"above"]];
+        frame.size.height = other.frame.origin.y - frame.origin.y - margin.bottom;
+        margin.top = 0; // So we don't apply it twice
+        sizeChanged = YES;
+    } else if (attributes[@"above"]) {
         UIView *other = _childrenById[attributes[@"above"]];
         frame.origin.y = other.frame.origin.y - frame.size.height;
         if (margin.bottom) frame.origin.y -= margin.bottom;
@@ -447,7 +458,13 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal, NWLayoutView*
 }
 
 - (void)sizeViewToFit:(UIView *)view {
-    if (!view.subviews.count || [view isKindOfClass:[UIButton class]]) {
+    [self sizeViewToFit:view forceHeight:NO];
+}
+- (void)sizeViewToFit:(UIView *)view forceHeight:(BOOL)forceHeight {
+    if ([view isKindOfClass:[NWWrappedView class]]) {
+        [view layoutSubviews];
+    }
+    if ((!view.subviews.count || [view isKindOfClass:[UIButton class]]) && view != self) {
         [view sizeToFit];
         return;
     }
@@ -458,13 +475,13 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal, NWLayoutView*
     }
     CGRect frame = view.frame;
     if (!frame.size.width) frame.size.width = maxX;
-    if (!frame.size.height) frame.size.height = maxY;
+    if (!frame.size.height || forceHeight) frame.size.height = maxY;
     view.frame = frame;
 }
 
 - (void)sizeToFit {
     [super sizeToFit];
-    [self sizeViewToFit:self];
+    [self sizeViewToFit:self forceHeight:YES];
 }
 
 - (void)fixContentSize:(UIScrollView*)scrollView {
@@ -612,6 +629,8 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal, NWLayoutView*
 }
 
 - (void)setDictValues:(NSDictionary *)dictValues {
+    if (_lastDictValues == dictValues) return;
+    _lastDictValues = dictValues;
     _dictValues = [dictValues mutableCopy];
     for (NSString *key in _dataMappedNodes) {
         for (NSString *valueKey in _dataMappedNodes[key]) {

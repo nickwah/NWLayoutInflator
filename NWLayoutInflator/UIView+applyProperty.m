@@ -14,6 +14,10 @@
 
 @implementation UIView (applyProperty)
 
+static BOOL isEnabled(NSString* value) {
+    return [value isEqualToString:@"1"] || [[value lowercaseString] isEqualToString:@"yes"];
+}
+
 - (void)applyProperty:(NSString*)name value:(NSString*)value layoutView:(NWLayoutView*)layoutView {
     if ([value respondsToSelector:@selector(hasPrefix:)]) {
         if ([value hasPrefix:@"{{"] && [value hasSuffix:@"}}"]) {
@@ -44,7 +48,11 @@
 }
 
 - (void)apply_hidden:(NSString*)value layoutView:(NWLayoutView*)layoutView {
-    [self setHidden:[value isEqualToString:@"1"] || [[value lowercaseString] isEqualToString:@"yes"]];
+    self.hidden = isEnabled(value);
+}
+
+- (void)apply_alpha:(NSString*)value layoutView:(NWLayoutView*)layoutView {
+    self.alpha = [value floatValue];
 }
 
 - (UIColor *)colorNamed:(NSString*)name {
@@ -119,7 +127,9 @@
 - (void)apply_shadowColor:(NSString*)value layoutView:(NWLayoutView*)layoutView {
     if ([self.layer respondsToSelector:@selector(setShadowColor:)]) {
         [self.layer setShadowColor:[[self colorNamed:value] CGColor]];
-        self.layer.shadowOpacity = 1.0f;
+        if (self.layer.shadowOpacity == 0) {
+            self.layer.shadowOpacity = 1.0f;
+        }
         self.layer.masksToBounds = NO;
         self.layer.shouldRasterize = YES;
     }
@@ -138,9 +148,19 @@
     }
 }
 
+- (void)apply_shadowOpacity:(NSString*)value layoutView:(NWLayoutView*)layoutView {
+    if ([self.layer respondsToSelector:@selector(setShadowOpacity:)]) {
+        [self.layer setShadowOpacity:[value floatValue]];
+    }
+}
+
 - (void)apply_cornerRadius:(NSString*)value layoutView:(NWLayoutView*)layoutView {
     self.layer.masksToBounds = YES;
     self.layer.cornerRadius = [value floatValue];
+}
+
+- (void)apply_clipsToBounds:(NSString*)value layoutView:(NWLayoutView*)layoutView {
+    self.clipsToBounds = isEnabled(value);
 }
 
 -(void)apply_backgroundColor:(NSString*)value layoutView:(NWLayoutView*)layoutView {
@@ -169,6 +189,9 @@
                 if (gesture != recognizer && [recognizer isKindOfClass:[UITapGestureRecognizer class]]) {
                     [recognizer handleAction:recognizer];
                 }
+            }
+            if ([self isKindOfClass:[UIButton class]]) {
+                [(UIButton*)self sendActionsForControlEvents:UIControlEventTouchUpInside];
             }
         }
     }];
@@ -290,7 +313,9 @@
         else if ([value isEqualToString:@"whitelarge"]) style = UIActivityIndicatorViewStyleWhiteLarge;
         else if ([value isEqualToString:@"gray"]) style = UIActivityIndicatorViewStyleGray;
         ((UIActivityIndicatorView*)self).activityIndicatorViewStyle = style;
-        [((UIActivityIndicatorView*)self) startAnimating];
+        if (!self.hidden) {
+            [((UIActivityIndicatorView*)self) startAnimating];
+        }
     }
 }
 
@@ -300,7 +325,7 @@
 
 - (void)apply_scrollEnabled:(NSString*)value layoutView:(NWLayoutView*)layoutView {
     if ([self respondsToSelector:@selector(setScrollEnabled:)]) {
-        ((UIScrollView*)self).scrollEnabled = [value intValue] ? YES : NO;
+        ((UIScrollView*)self).scrollEnabled = isEnabled(value);
     }
 }
 
@@ -319,6 +344,18 @@
 - (void)apply_placeholder:(NSString*)value layoutView:(NWLayoutView*)layoutView {
     if ([self respondsToSelector:@selector(setPlaceholder:)]) {
         ((UITextField*)self).placeholder = value;
+    }
+}
+
+- (void)apply_editable:(NSString*)value layoutView:(NWLayoutView*)layoutView {
+    if ([self respondsToSelector:@selector(setEditable:)]) {
+        ((UITextView*)self).editable = isEnabled(value);
+    }
+}
+
+- (void)apply_secureTextEntry:(NSString*)value layoutView:(NWLayoutView*)layoutView {
+    if ([self respondsToSelector:@selector(setSecureTextEntry:)]) {
+        ((UITextField*)self).secureTextEntry = isEnabled(value);
     }
 }
 
@@ -417,6 +454,12 @@
     // TODO: this is unnecessary; the generic set* in applyProperty should cover it
     if (![self respondsToSelector:@selector(setFormValue:)]) return;
     [self performSelector:@selector(setFormValue:) withObject:value];
+}
+
+- (void)apply_firstResponder:(NSString*)value layoutView:(NWLayoutView*)layoutView {
+    if ([self respondsToSelector:@selector(becomeFirstResponder)]) {
+        [self becomeFirstResponder];
+    }
 }
 
 @end

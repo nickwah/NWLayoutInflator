@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		010913C31C3EF56D00D516AA /* NWWrappedView.h in Headers */ = {isa = PBXBuildFile; fileRef = 010913C11C3EF56D00D516AA /* NWWrappedView.h */; };
+		010913C41C3EF56D00D516AA /* NWWrappedView.m in Sources */ = {isa = PBXBuildFile; fileRef = 010913C21C3EF56D00D516AA /* NWWrappedView.m */; };
 		01B34AEF1B71327900995C02 /* NWLayoutInflator.h in Headers */ = {isa = PBXBuildFile; fileRef = 01B34AEE1B71327900995C02 /* NWLayoutInflator.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		01B34B061B71333300995C02 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01B34B051B71333300995C02 /* UIKit.framework */; };
 		01B34B0F1B7133B200995C02 /* NWLayoutView.h in Headers */ = {isa = PBXBuildFile; fileRef = 01B34B071B7133B200995C02 /* NWLayoutView.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -26,6 +28,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		010913C11C3EF56D00D516AA /* NWWrappedView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NWWrappedView.h; sourceTree = "<group>"; };
+		010913C21C3EF56D00D516AA /* NWWrappedView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NWWrappedView.m; sourceTree = "<group>"; };
 		01B34AE91B71327900995C02 /* NWLayoutInflator.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = NWLayoutInflator.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		01B34AED1B71327900995C02 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		01B34AEE1B71327900995C02 /* NWLayoutInflator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NWLayoutInflator.h; sourceTree = "<group>"; };
@@ -78,6 +82,8 @@
 		01B34AEB1B71327900995C02 /* NWLayoutInflator */ = {
 			isa = PBXGroup;
 			children = (
+				010913C11C3EF56D00D516AA /* NWWrappedView.h */,
+				010913C21C3EF56D00D516AA /* NWWrappedView.m */,
 				01D861601BF2A66800CB0E8F /* NWAlertView.h */,
 				01D861611BF2A66800CB0E8F /* NWAlertView.m */,
 				01D861621BF2A66800CB0E8F /* NWXMLDictionary.h */,
@@ -118,6 +124,7 @@
 				01B34AEF1B71327900995C02 /* NWLayoutInflator.h in Headers */,
 				01D861681BF2A66800CB0E8F /* NWAlertView.h in Headers */,
 				01D8616E1BF2A66800CB0E8F /* UITouchDownGestureRecognizer.h in Headers */,
+				010913C31C3EF56D00D516AA /* NWWrappedView.h in Headers */,
 				01D8616C1BF2A66800CB0E8F /* UIGestureRecognizer+Blocks.h in Headers */,
 				01B34B131B7133B200995C02 /* UIView+applyProperty.h in Headers */,
 				01D8616A1BF2A66800CB0E8F /* NWXMLDictionary.h in Headers */,
@@ -196,6 +203,7 @@
 				01B34B121B7133B200995C02 /* UIColor+hexString.m in Sources */,
 				01B34B101B7133B200995C02 /* NWLayoutView.m in Sources */,
 				01D8616F1BF2A66800CB0E8F /* UITouchDownGestureRecognizer.m in Sources */,
+				010913C41C3EF56D00D516AA /* NWWrappedView.m in Sources */,
 				01D8616B1BF2A66800CB0E8F /* NWXMLDictionary.m in Sources */,
 				01D8616D1BF2A66800CB0E8F /* UIGestureRecognizer+Blocks.m in Sources */,
 			);
