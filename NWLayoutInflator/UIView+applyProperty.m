@@ -204,6 +204,12 @@ static BOOL isEnabled(NSString* value) {
     }
 }
 
+- (void)apply_tintedImageNamed:(NSString*)value layoutView:(NWLayoutView*)layoutView {
+    if ([self respondsToSelector:@selector(setImage:)]) {
+        [((UIImageView*)self) setImage:[[UIImage imageNamed:value] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+    }
+}
+
 - (void)apply_imageWithURL:(NSString*)value layoutView:(NWLayoutView*)layoutView {
     if ([self respondsToSelector:@selector(setImageWithURL:)]) {
         if ([value hasPrefix:@"//"]) {
@@ -247,6 +253,19 @@ static BOOL isEnabled(NSString* value) {
 }
 
 - (void)apply_onclick:(NSString*)value layoutView:(NWLayoutView*)layoutView {
+    if (self.gestureRecognizers.count) {
+        // We only allow one recognizer
+        for (int i = 0; i < self.gestureRecognizers.count; i++) {
+            UIGestureRecognizer *gesture = self.gestureRecognizers[i];
+            if ([gesture isKindOfClass:[UITapGestureRecognizer class]]) {
+                [self removeGestureRecognizer:gesture];
+                i--;
+            }
+        }
+    }
+    if (!value || !value.length) {
+        return;
+    }
     NSString *param = nil;
     NSString *method = value;
     BOOL includeView = NO;

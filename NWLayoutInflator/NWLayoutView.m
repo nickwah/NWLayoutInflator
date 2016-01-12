@@ -46,7 +46,7 @@ static NSMutableDictionary *_parsedStyles;
         _parsedCache = [NSMutableDictionary dictionary];
     }
     if (!_layoutKeys) {
-        _layoutKeys = [NSSet setWithObjects:@"id", @"width", @"height", @"x", @"y", @"alignLeft", @"alignTop", @"margin", @"marginLeft", @"marginTop", @"marginRight", @"marginBottom", nil];
+        _layoutKeys = [NSSet setWithObjects:@"id", @"width", @"height", @"x", @"y", @"alignLeft", @"alignTop", @"margin", @"marginLeft", @"marginTop", @"marginRight", @"marginBottom", @"above", @"below", @"bottom", @"right", @"toLeftOf", @"toRightOf", @"alignRight", @"alignBottom", nil];
     }
     if (!_parsedStyles) _parsedStyles = [NSMutableDictionary dictionary];
     if (!_namedColors[@"white"]) [NWLayoutView setColor:[UIColor whiteColor] forName:@"white"];
@@ -325,7 +325,9 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal, NWLayoutView*
         }
     }
     //NSLog(@"Applying %lu attributes to view", (unsigned long)attributes.count);
-    CGRect frame = CGRectMake(0,0,0,0);
+    CGRect frame = CGRectZero;
+    CGFloat right = 0;
+    CGFloat bottom = 0;
     UIEdgeInsets margin = UIEdgeInsetsMake(0, 0, 0, 0);
     for (NSString* key in attributes) {
         NSString* value = attributes[key];
@@ -347,6 +349,28 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal, NWLayoutView*
             } else if ([key isEqualToString:@"alignTop"]) {
                 UIView *other = _childrenById[value];
                 frame.origin.y = other.frame.origin.y;
+            } else if ([key isEqualToString:@"below"]) {
+                UIView *other = _childrenById[value];
+                frame.origin.y = other.frame.origin.y + other.frame.size.height;
+            } else if ([key isEqualToString:@"above"]) {
+                UIView *other = _childrenById[value];
+                bottom = other.frame.origin.y;
+            } else if ([key isEqualToString:@"bottom"]) {
+                bottom = [view superview].bounds.size.height - parseValue(attributes[@"bottom"], view, NO, self);
+            } else if ([key isEqualToString:@"right"]) {
+                right = [view superview].bounds.size.width - parseValue(attributes[@"right"], view, YES, self);
+            } else if ([key isEqualToString:@"toLeftOf"]) {
+                UIView *other = _childrenById[value];
+                right = other.frame.origin.x;
+            } else if ([key isEqualToString:@"toRightOf"]) {
+                UIView *other = _childrenById[value];
+                frame.origin.x = other.frame.origin.x + other.frame.size.width;
+            } else if ([key isEqualToString:@"alignRight"]) {
+                UIView *other = _childrenById[value];
+                right = CGRectGetMaxX(other.frame);
+            } else if ([key isEqualToString:@"alignBottom"]) {
+                UIView *other = _childrenById[value];
+                bottom = CGRectGetMaxY(other.frame);
             } else if ([key isEqualToString:@"marginTop"]) {
                 margin.top = parseValue(value, view, NO, self);
             } else if ([key isEqualToString:@"marginLeft"]) {
@@ -363,8 +387,13 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal, NWLayoutView*
             [view applyProperty:key value:value layoutView:self];
         }
     }
+    if (margin.top)  frame.origin.y += margin.top;
+    if (margin.left) frame.origin.x += margin.left;
+    if (margin.bottom && bottom) bottom -= margin.bottom;
+    if (margin.right && right) right -= margin.right;
+    if (frame.origin.x && right) frame.size.width = right - frame.origin.x;
+    if (frame.origin.y && bottom) frame.size.height = bottom - frame.origin.y;
     view.frame = frame;
-    BOOL sizeChanged = NO;
     if (attributes[@"sizeToFit"]) {
         CGSize origSize = frame.size;
         [self sizeViewToFit:view];
@@ -372,62 +401,13 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal, NWLayoutView*
         if (origSize.width) frame.size.width = origSize.width;
         if (origSize.height) frame.size.height = origSize.height;
     }
-    if (attributes[@"above"] && attributes[@"below"]) {
-        UIView *other = _childrenById[attributes[@"below"]];
-        frame.origin.y = other.frame.origin.y + other.frame.size.height + margin.top;
-        other = _childrenById[attributes[@"above"]];
-        frame.size.height = other.frame.origin.y - frame.origin.y - margin.bottom;
-        margin.top = 0; // So we don't apply it twice
-        sizeChanged = YES;
-    } else if (attributes[@"above"]) {
-        UIView *other = _childrenById[attributes[@"above"]];
-        frame.origin.y = other.frame.origin.y - frame.size.height;
-        if (margin.bottom) frame.origin.y -= margin.bottom;
-    } else if (attributes[@"below"]) {
-        UIView *other = _childrenById[attributes[@"below"]];
-        frame.origin.y = other.frame.origin.y + other.frame.size.height;
-    } else if (attributes[@"bottom"]) {
-        if (frame.origin.y) {
-            frame.size.height = [view superview].bounds.size.height - frame.origin.y - parseValue(attributes[@"bottom"], view, NO, self);
-            sizeChanged = YES;
-        } else {
-            frame.origin.y = [view superview].bounds.size.height - frame.size.height - parseValue(attributes[@"bottom"], view, NO, self);
-        }
-        if (margin.bottom) frame.origin.y -= margin.bottom;
-    } else if (attributes[@"centerVertical"]) {
-        frame.origin.y = ([view superview].bounds.size.height - frame.size.height) / 2;
+    if (right && !frame.origin.x) frame.origin.x = right - frame.size.width;
+    if (bottom && !frame.origin.y) frame.origin.y = bottom - frame.size.height;
+    if (attributes[@"centerVertical"]) {
+        frame.origin.y = ([view superview].bounds.size.height - frame.size.height) / 2 + margin.top;
     }
-    if (attributes[@"toLeftOf"]) {
-        UIView *other = _childrenById[attributes[@"toLeftOf"]];
-        frame.origin.x = other.frame.origin.x - frame.size.width;
-        if (margin.right) frame.origin.x -= margin.right;
-    } else if (attributes[@"toRightOf"]) {
-        UIView *other = _childrenById[attributes[@"toRightOf"]];
-        frame.origin.x = other.frame.origin.x + other.frame.size.width;
-    } else if (attributes[@"alignRight"]) {
-        UIView *other = _childrenById[attributes[@"alignRight"]];
-        frame.origin.x = other.frame.origin.x + other.frame.size.width - frame.size.width;
-    } else if (attributes[@"centerHorizontal"]) {
-        frame.origin.x = ([view superview].bounds.size.width - frame.size.width) / 2;
-    }
-    if (attributes[@"right"]) {
-        if (frame.origin.x) {
-            frame.size.width = [view superview].bounds.size.width - frame.origin.x - parseValue(attributes[@"right"], view, YES, self);
-            sizeChanged = YES;
-        } else {
-            frame.origin.x = [view superview].bounds.size.width - frame.size.width - parseValue(attributes[@"right"], view, YES, self);
-            if (margin.right) frame.origin.x -= margin.right;
-        }
-    }
-    if (margin.top)  frame.origin.y += margin.top;
-    if (margin.left) frame.origin.x += margin.left;
-    if (attributes[@"sizeToFit"] && sizeChanged) {
-        view.frame = frame;
-        CGSize origSize = frame.size;
-        [self sizeViewToFit:view];
-        frame = view.frame;
-        if (origSize.width) frame.size.width = origSize.width;
-        if (origSize.height) frame.size.height = origSize.height;
+    if (attributes[@"centerHorizontal"]) {
+        frame.origin.x = ([view superview].bounds.size.width - frame.size.width) / 2 + margin.left;
     }
     if (view == self) {
         [super setFrame:frame];
@@ -621,7 +601,16 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal, NWLayoutView*
 }
 
 - (NSString*)getDictValue:(NSString *)varExpr {
-    return _dictValues[varExpr] ?: @"";
+    id value = _dictValues[varExpr];
+    if (value && ![value isKindOfClass:[NSString class]]) {
+        if ([value isKindOfClass:[NSNull class]]) {
+            value = @"";
+        } else {
+            value = [value stringValue];
+        }
+        _dictValues[varExpr] = value;
+    }
+    return value ?: @"";
 }
 
 - (NSDictionary*)dictValues {
@@ -636,7 +625,7 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal, NWLayoutView*
         for (NSString *valueKey in _dataMappedNodes[key]) {
             NSArray *nodes = _dataMappedNodes[key][valueKey];
             for (UIView *node in nodes) {
-                [node applyProperty:valueKey value:_dictValues[valueKey] layoutView:self];
+                [node applyProperty:valueKey value:[self getDictValue:key] layoutView:self];
             }
         }
     }
