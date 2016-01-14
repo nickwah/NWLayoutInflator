@@ -10,7 +10,6 @@
 #import "NWXMLDictionary.h"
 #import "UIView+applyProperty.h"
 #import "UIColor+hexString.h"
-#import "NWWrappedView.h"
 
 static NSMutableDictionary *_cachedXML;
 static NSMutableDictionary *_parsedCache;
@@ -26,6 +25,7 @@ static NSMutableDictionary *_parsedStyles;
     NSMutableDictionary *_dataMappedNodes;
     __weak NSDictionary *_lastDictValues;
     NSMutableDictionary *_dictValues;
+    NSMutableDictionary *_formValuesById;
     NSMutableDictionary *_styleSheet;
 }
 
@@ -229,10 +229,32 @@ static NSMutableDictionary *_parsedStyles;
     return _styleSheet[@"ids"][class];
 }
 
+- (NSDictionary*)getFinalLayout {
+    id cached = _parsedCache[_layoutName];
+    NSDictionary *root;
+    if (!cached) {
+        NSString *xmlLayout = [NWLayoutView getXMLforName:_layoutName];
+        if (!xmlLayout) {
+            NSLog(@"ERROR: unable to locate %@", _layoutName);
+            return nil;
+        }
+        root = [NSDictionary NWdictionaryWithXMLString:xmlLayout];
+        _parsedCache[_layoutName] = root;
+    }
+    return root;
+}
+
++ (void)precacheLayout:(NSString*)layoutName {
+    NWLayoutView *lv = [[NWLayoutView alloc] init];
+    lv.layoutName = layoutName;
+    [lv getFinalLayout];
+}
+
 - (void)parseLayout {
     _childrenById = [NSMutableDictionary dictionary];
     _attributesById = [NSMutableDictionary dictionary];
     _segmentedControls = [NSMutableArray array];
+    _formValuesById = [NSMutableDictionary dictionary];
     _allNodes = [NSMutableArray array];
     for (UIView *subview in self.subviews) {
         [subview removeFromSuperview];
@@ -241,21 +263,12 @@ static NSMutableDictionary *_parsedStyles;
         // TODO: raise an exception
         [NSException raise:@"Layout not found" format:@"%@ is null", _layoutName];
     }
-    id cached = _parsedCache[_layoutName];
-    NSDictionary *root;
-    if (!cached) {
-        NSString *xmlLayout = [NWLayoutView getXMLforName:_layoutName];
-        if (!xmlLayout) {
-            NSLog(@"ERROR: unable to locate %@", _layoutName);
-            return;
-        }
-        root = [NSDictionary NWdictionaryWithXMLString:xmlLayout];
-        _parsedCache[_layoutName] = root;
-    }
+    NSDictionary *root = [self getFinalLayout];
+    if (!root) return;
     if (root.safeAttributesNW[@"stylesheet"]) {
         [self loadStylesheet:root.safeAttributesNW[@"stylesheet"]];
     }
-    [_allNodes addObject:@{@"view": self, @"attributes": [root safeAttributesNW], @"root": @YES}];
+    [_allNodes addObject:@{@"view": self, @"nodeName": root.nodeNameNW, @"attributes": [root safeAttributesNW], @"root": @YES}];
     [self createAndAddChildNodes:[root childNodesNW] To:self];
     CGRect frame = self.frame;
     [self applyAttributes:[root attributesNW] To:self layoutOnly:NO];
@@ -275,9 +288,12 @@ static NSMutableDictionary *_parsedStyles;
             UIView *child = [self createViewWithClass:[node nodeNameNW]];
             [view addSubview:child];
             NSDictionary *attrs = [node attributesNW];
+            if (attrs[@"id"] && attrs[@"formValue"]) {
+                _formValuesById[attrs[@"id"]] = attrs[@"formValue"];
+            }
             [self applyAttributes:attrs To:child layoutOnly:NO];
             NSArray *childNodes = [node childNodesNW];
-            [_allNodes addObject:@{@"view": child, @"attributes": attrs ?: @{}, @"children": @(childNodes.count), @"last": @(i == numNodes - 1)}];
+            [_allNodes addObject:@{@"nodeName": node.nodeNameNW, @"view": child, @"attributes": attrs ?: @{}, @"children": @(childNodes.count), @"last": @(i == numNodes - 1)}];
             if (childNodes.count) {
                 [self createAndAddChildNodes:childNodes To:child];
                 if (node.attributesNW[@"sizeToFit"]) {
@@ -326,8 +342,11 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal, NWLayoutView*
     }
     //NSLog(@"Applying %lu attributes to view", (unsigned long)attributes.count);
     CGRect frame = CGRectZero;
-    CGFloat right = 0;
-    CGFloat bottom = 0;
+#define UNSET -999
+    CGFloat left = UNSET;
+    CGFloat top = UNSET;
+    CGFloat right = UNSET;
+    CGFloat bottom = UNSET;
     UIEdgeInsets margin = UIEdgeInsetsMake(0, 0, 0, 0);
     for (NSString* key in attributes) {
         NSString* value = attributes[key];
@@ -340,18 +359,18 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal, NWLayoutView*
             } else if ([key isEqualToString:@"height"]) {
                 frame.size.height = parseValue(value, view, NO, self);
             } else if ([key isEqualToString:@"x"]) {
-                frame.origin.x = parseValue(value, view, YES, self);
+                left = parseValue(value, view, YES, self);
             } else if ([key isEqualToString:@"y"]) {
-                frame.origin.y = parseValue(value, view, NO, self);
+                top = parseValue(value, view, NO, self);
             } else if ([key isEqualToString:@"alignLeft"]) {
                 UIView *other = _childrenById[value];
-                frame.origin.x = other.frame.origin.x;
+                left = other.frame.origin.x;
             } else if ([key isEqualToString:@"alignTop"]) {
                 UIView *other = _childrenById[value];
-                frame.origin.y = other.frame.origin.y;
+                top = other.frame.origin.y;
             } else if ([key isEqualToString:@"below"]) {
                 UIView *other = _childrenById[value];
-                frame.origin.y = other.frame.origin.y + other.frame.size.height;
+                top = other.frame.origin.y + other.frame.size.height;
             } else if ([key isEqualToString:@"above"]) {
                 UIView *other = _childrenById[value];
                 bottom = other.frame.origin.y;
@@ -364,7 +383,7 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal, NWLayoutView*
                 right = other.frame.origin.x;
             } else if ([key isEqualToString:@"toRightOf"]) {
                 UIView *other = _childrenById[value];
-                frame.origin.x = other.frame.origin.x + other.frame.size.width;
+                left = other.frame.origin.x + other.frame.size.width;
             } else if ([key isEqualToString:@"alignRight"]) {
                 UIView *other = _childrenById[value];
                 right = CGRectGetMaxX(other.frame);
@@ -387,12 +406,14 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal, NWLayoutView*
             [view applyProperty:key value:value layoutView:self];
         }
     }
-    if (margin.top)  frame.origin.y += margin.top;
-    if (margin.left) frame.origin.x += margin.left;
-    if (margin.bottom && bottom) bottom -= margin.bottom;
-    if (margin.right && right) right -= margin.right;
-    if (frame.origin.x && right) frame.size.width = right - frame.origin.x;
-    if (frame.origin.y && bottom) frame.size.height = bottom - frame.origin.y;
+    if (margin.top && top != UNSET)  top += margin.top;
+    if (margin.left && left != UNSET) left += margin.left;
+    if (margin.bottom && bottom != UNSET) bottom -= margin.bottom;
+    if (margin.right && right != UNSET) right -= margin.right;
+    if (left != UNSET && right != UNSET && !frame.size.width) frame.size.width = right - left;
+    if (top != UNSET && bottom != UNSET && !frame.size.height) frame.size.height = bottom - top;
+    if (left != UNSET) frame.origin.x = left;
+    if (top != UNSET) frame.origin.y = top;
     view.frame = frame;
     if (attributes[@"sizeToFit"]) {
         CGSize origSize = frame.size;
@@ -401,8 +422,8 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal, NWLayoutView*
         if (origSize.width) frame.size.width = origSize.width;
         if (origSize.height) frame.size.height = origSize.height;
     }
-    if (right && !frame.origin.x) frame.origin.x = right - frame.size.width;
-    if (bottom && !frame.origin.y) frame.origin.y = bottom - frame.size.height;
+    if (right != UNSET && left == UNSET) frame.origin.x = right - frame.size.width;
+    if (bottom != UNSET && top == UNSET) frame.origin.y = bottom - frame.size.height;
     if (attributes[@"centerVertical"]) {
         frame.origin.y = ([view superview].bounds.size.height - frame.size.height) / 2 + margin.top;
     }
@@ -414,6 +435,16 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal, NWLayoutView*
     } else {
         view.frame = frame;
     }
+    /* TODO: fix frame if a view gets resized
+    if (attributes[@"backgroundGradient"]) {
+        for (CALayer *layer in view.layer.sublayers) {
+            if ([layer isKindOfClass:[CAGradientLayer class]]) {
+                layer.frame = view.bounds;
+                NSLog(@"layer frame updated to %@", NSStringFromCGRect(layer.frame));
+            }
+        }
+    }
+     */
 }
 
 - (void)setFrame:(CGRect)frame {
@@ -430,6 +461,9 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal, NWLayoutView*
                 // We revisit the layout of the parent
                 [self applyAttributes:parent[@"attributes"] To:parent[@"view"] layoutOnly:YES];
             }
+            if ([parent[@"nodeName"] isEqualToString:@"UIScrollView"]) {
+                [self fixContentSize:(UIScrollView*)parent[@"view"]];
+            }
         }
         if ([node[@"children"] intValue]) {
             [nodeStack addObject:node];
@@ -441,15 +475,24 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal, NWLayoutView*
     [self sizeViewToFit:view forceHeight:NO];
 }
 - (void)sizeViewToFit:(UIView *)view forceHeight:(BOOL)forceHeight {
-    if ([view isKindOfClass:[NWWrappedView class]]) {
-        [view layoutSubviews];
+    if ([view isKindOfClass:[UIImageView class]]) {
+        CGRect frame = view.frame;
+        UIImage *image = ((UIImageView*)view).image;
+        if (frame.size.width) {
+            frame.size.height = image ? frame.size.width * image.size.height / image.size.width : 0;
+        } else if (frame.size.height) {
+            frame.size.width = image ? frame.size.height * image.size.width / image.size.height : 0;
+        }
+        view.frame = frame;
+        return;
     }
-    if ((!view.subviews.count || [view isKindOfClass:[UIButton class]]) && view != self) {
+    if ((!view.subviews.count || [view isKindOfClass:[UIButton class]] || ![NSStringFromClass(view.class) hasPrefix:@"UI"]) && view != self) {
         [view sizeToFit];
         return;
     }
     CGFloat maxX = 0, maxY = 0;
     for (UIView* subview in view.subviews) {
+        if (subview.hidden) continue;
         maxX = fmaxf(maxX, CGRectGetMaxX(subview.frame));
         maxY = fmaxf(maxY, CGRectGetMaxY(subview.frame));
     }
@@ -560,7 +603,7 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal, NWLayoutView*
 }
 
 - (NSMutableDictionary*)getFormValues {
-    NSMutableDictionary *values = [NSMutableDictionary dictionary];
+    NSMutableDictionary *values = [_formValuesById mutableCopy];
     for (NSString *name in _childrenById) {
         UIView *child = _childrenById[name];
         if ([child isKindOfClass:[UIDatePicker class]]) {

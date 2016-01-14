@@ -55,6 +55,15 @@ static BOOL isEnabled(NSString* value) {
     self.alpha = [value floatValue];
 }
 
+- (void)apply_padding:(NSString*)value layoutView:(NWLayoutView*)layoutView {
+    SEL s = @selector(setPadding:);
+    if ([self respondsToSelector:s]) {
+        IMP imp = [self methodForSelector:s];
+        void (*func)(id, SEL, CGFloat) = (void *)imp;
+        func(self, s, [value floatValue]);
+    }
+}
+
 - (UIColor *)colorNamed:(NSString*)name {
     if ([name hasPrefix:@"#"]) {
         return [UIColor colorFromHex:name];
@@ -196,6 +205,22 @@ static BOOL isEnabled(NSString* value) {
         }
     }];
     [self addGestureRecognizer:downRecognizer];
+}
+-(void)apply_backgroundGradient:(NSString*)value layoutView:(NWLayoutView*)layoutView {
+    // TODO: support horizontal as well
+    NSArray *parts = [value componentsSeparatedByString:@","];
+    CAGradientLayer *theViewGradient = [CAGradientLayer layer];
+    NSMutableArray *colors = [NSMutableArray arrayWithCapacity:parts.count];
+    for (NSString *part in parts) {
+        if ([part hasPrefix:@"angle:"]) {
+            // TODO
+        } else {
+            [colors addObject:(id)[self colorNamed:part].CGColor];
+        }
+    }
+    theViewGradient.colors = colors;
+    theViewGradient.frame = self.bounds;
+    [self.layer insertSublayer:theViewGradient atIndex:0];
 }
 
 - (void)apply_imageNamed:(NSString*)value layoutView:(NWLayoutView*)layoutView {

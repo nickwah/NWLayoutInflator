@@ -37,5 +37,6 @@
 + (UIColor*)namedColor:(NSString*)name;
 + (void)setColor:(UIColor*)color forName:(NSString*)name;
 + (void)addColorsFromDictionary:(NSDictionary*)colors; // NSString -> NSString of hex color
++ (void)precacheLayout:(NSString*)layoutName;
 
 @end

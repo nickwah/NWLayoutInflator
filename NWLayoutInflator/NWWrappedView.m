@@ -11,6 +11,8 @@
 @implementation NWWrappedView {
     CGFloat _spacing;
     BOOL _centered;
+    CGFloat _width;
+    CGFloat _height;
 }
 
 - (void)setSpacing:(NSString*)spacing {
@@ -41,9 +43,15 @@
     }
 }
 
--(void)layoutSubviews {
+- (CGSize)sizeThatFits:(CGSize)size {
+    [self layoutSubviews];
+    return CGSizeMake(_width, _height);
+}
+
+- (void)layoutSubviews {
     [super layoutSubviews];
     CGFloat width = self.frame.size.width;
+    _width = width;
     CGFloat x = 0;
     CGFloat y = 0;
     CGFloat maxHeight = 0;
@@ -55,12 +63,17 @@
             [self positionViews:row x:0 y:y];
             y += maxHeight + _spacing;
             x = 0;
+            maxHeight = 0;
             [row removeAllObjects];
         }
         [row addObject:subview];
         x += frame.size.width + _spacing;
     }
-    if (row.count > 0) [self positionViews:row x:0 y:y];
+    if (row.count > 0) {
+        [self positionViews:row x:0 y:y];
+        y += maxHeight;
+    }
+    _height = y;
 }
 
 @end
