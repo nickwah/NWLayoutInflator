@@ -46,7 +46,7 @@ static NSMutableDictionary *_parsedStyles;
         _parsedCache = [NSMutableDictionary dictionary];
     }
     if (!_layoutKeys) {
-        _layoutKeys = [NSSet setWithObjects:@"id", @"width", @"height", @"x", @"y", @"alignLeft", @"alignTop", @"margin", @"marginLeft", @"marginTop", @"marginRight", @"marginBottom", @"above", @"below", @"bottom", @"right", @"toLeftOf", @"toRightOf", @"alignRight", @"alignBottom", nil];
+        _layoutKeys = [NSSet setWithObjects:@"id", @"width", @"height", @"x", @"y", @"alignLeft", @"alignTop", @"margin", @"marginLeft", @"marginTop", @"marginRight", @"marginBottom", @"above", @"below", @"bottom", @"right", @"toLeftOf", @"toRightOf", @"alignRight", @"alignBottom", @"minHeight", @"minWidth", nil];
     }
     if (!_parsedStyles) _parsedStyles = [NSMutableDictionary dictionary];
     if (!_namedColors[@"white"]) [NWLayoutView setColor:[UIColor whiteColor] forName:@"white"];
@@ -422,6 +422,12 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal, NWLayoutView*
         if (origSize.width) frame.size.width = origSize.width;
         if (origSize.height) frame.size.height = origSize.height;
     }
+    if (attributes[@"minHeight"]) {
+        frame.size.height = fmax(frame.size.height, parseValue(attributes[@"minHeight"], view, NO, self));
+    }
+    if (attributes[@"minWidth"]) {
+        frame.size.width = fmax(frame.size.width, parseValue(attributes[@"minWidth"], view, YES, self));
+    }
     if (right != UNSET && left == UNSET) frame.origin.x = right - frame.size.width;
     if (bottom != UNSET && top == UNSET) frame.origin.y = bottom - frame.size.height;
     if (attributes[@"centerVertical"]) {
@@ -435,16 +441,13 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal, NWLayoutView*
     } else {
         view.frame = frame;
     }
-    /* TODO: fix frame if a view gets resized
-    if (attributes[@"backgroundGradient"]) {
+    if (layoutOnly && attributes[@"backgroundGradient"]) {
         for (CALayer *layer in view.layer.sublayers) {
             if ([layer isKindOfClass:[CAGradientLayer class]]) {
                 layer.frame = view.bounds;
-                NSLog(@"layer frame updated to %@", NSStringFromCGRect(layer.frame));
             }
         }
     }
-     */
 }
 
 - (void)setFrame:(CGRect)frame {
@@ -509,19 +512,38 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal, NWLayoutView*
 
 - (void)fixContentSize:(UIScrollView*)scrollView {
     CGFloat maxX = 0, maxY = 0;
+    NSUInteger numviews = scrollView.subviews.count;
+    int i = 0;
     for (UIView* subview in scrollView.subviews) {
-        maxX = fmaxf(maxX, CGRectGetMaxX(subview.frame));
-        maxY = fmaxf(maxY, CGRectGetMaxY(subview.frame));
+        CGRect subFrame = subview.frame;
+        // The scroll bars are automatically added to the end of the subviews, and we shouldn't count those toward content size
+        // cf http://stackoverflow.com/questions/10965754/how-to-exclude-scroll-indicators-while-enumerating-subviews-of-a-uiscrollview
+        if (i >= numviews - 2 && [subview isKindOfClass:[UIImageView class]] && (subFrame.size.width < 5 || subFrame.size.height < 5)) {
+            continue;
+        }
+        maxX = fmaxf(maxX, CGRectGetMaxX(subFrame));
+        maxY = fmaxf(maxY, CGRectGetMaxY(subFrame));
+        i++;
     }
     scrollView.contentSize = CGSizeMake(maxX, maxY);
 }
 
+static NSMutableDictionary *layoutClassCache;
+static Class classFromString(NSString *name) {
+    if (!layoutClassCache) layoutClassCache = [NSMutableDictionary dictionary];
+    id cached = layoutClassCache[name];
+    if (!cached) {
+        cached = NSClassFromString(name);
+        layoutClassCache[name] = cached;
+    }
+    return cached;
+}
 
 - (UIView*)createViewWithClass:(NSString*)className {
     if ([className isEqualToString:@"UIButton"]) {
         return [UIButton buttonWithType:UIButtonTypeRoundedRect];
     }
-    id view = [[NSClassFromString(className) alloc] init];
+    id view = [[classFromString(className) alloc] init];
     // TODO: for any special cases, handle them here
     return view;
 }
