@@ -117,6 +117,12 @@ static BOOL isEnabled(NSString* value) {
     }
 }
 
+- (void)apply_enabled:(NSString*)value layoutView:(NWLayoutView*)layoutView {
+    if ([self respondsToSelector:@selector(setEnabled:)]) {
+        ((UIButton*)self).enabled = isEnabled(value);
+    }
+}
+
 - (void)apply_textAlignment:(NSString*)value layoutView:(NWLayoutView*)layoutView {
     if ([self respondsToSelector:@selector(setTextAlignment:)]) {
         NSTextAlignment alignment = NSTextAlignmentCenter;
@@ -220,23 +226,24 @@ static BOOL isEnabled(NSString* value) {
     }
     theViewGradient.colors = colors;
     theViewGradient.frame = self.bounds;
+    NSLog(@"applied gradient with colors: %@\nview:%@", colors, self);
     [self.layer insertSublayer:theViewGradient atIndex:0];
 }
 
 - (void)apply_imageNamed:(NSString*)value layoutView:(NWLayoutView*)layoutView {
-    if ([self respondsToSelector:@selector(setImage:)]) {
+    if ([self respondsToSelector:@selector(setImage:)] && value.length) {
         [((UIImageView*)self) setImage:[UIImage imageNamed:value]];
     }
 }
 
 - (void)apply_tintedImageNamed:(NSString*)value layoutView:(NWLayoutView*)layoutView {
-    if ([self respondsToSelector:@selector(setImage:)]) {
+    if ([self respondsToSelector:@selector(setImage:)] && value.length) {
         [((UIImageView*)self) setImage:[[UIImage imageNamed:value] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
     }
 }
 
 - (void)apply_imageWithURL:(NSString*)value layoutView:(NWLayoutView*)layoutView {
-    if ([self respondsToSelector:@selector(setImageWithURL:)]) {
+    if ([self respondsToSelector:@selector(setImageWithURL:)] && value.length) {
         if ([value hasPrefix:@"//"]) {
             value = [NSString stringWithFormat:@"http:%@", value];
         }
@@ -251,7 +258,7 @@ static BOOL isEnabled(NSString* value) {
 }
 
 - (void)apply_tintColor:(NSString*)value layoutView:(NWLayoutView*)layoutView {
-    if ([self respondsToSelector:@selector(setTintColor:)]) {
+    if ([self respondsToSelector:@selector(setTintColor:)] && value.length) {
         [((UIImageView*)self) setTintColor:[self colorNamed:value]];
     }
 }
@@ -429,6 +436,38 @@ static BOOL isEnabled(NSString* value) {
             keyboardType = UIKeyboardTypeWebSearch;
         }
         ((UITextField*)self).keyboardType = keyboardType;
+    }
+}
+
+- (void)apply_autocorrectionType:(NSString*)value layoutView:(NWLayoutView*)layoutView {
+    if ([self respondsToSelector:@selector(setAutocorrectionType:)]) {
+        UITextAutocorrectionType autocorrectType = ((UITextField*)self).autocorrectionType;
+        value = [value lowercaseString];
+        if ([value isEqualToString:@"no"]) {
+            autocorrectType = UITextAutocorrectionTypeNo;
+        } else if ([value isEqualToString:@"yes"]) {
+            autocorrectType = UITextAutocorrectionTypeYes;
+        } else if ([value isEqualToString:@"default"]) {
+            autocorrectType = UITextAutocorrectionTypeDefault;
+        }
+        ((UITextField*)self).autocorrectionType = autocorrectType;
+    }
+}
+
+- (void)apply_autocapitalizationType:(NSString*)value layoutView:(NWLayoutView*)layoutView {
+    if ([self respondsToSelector:@selector(setAutocorrectionType:)]) {
+        UITextAutocapitalizationType autoCapType = ((UITextField*)self).autocapitalizationType;
+        value = [value lowercaseString];
+        if ([value isEqualToString:@"all"]) {
+            autoCapType = UITextAutocapitalizationTypeAllCharacters;
+        } else if ([value isEqualToString:@"none"]) {
+            autoCapType = UITextAutocapitalizationTypeNone;
+        } else if ([value isEqualToString:@"sentences"]) {
+            autoCapType = UITextAutocapitalizationTypeSentences;
+        } else if ([value isEqualToString:@"words"]) {
+            autoCapType = UITextAutocapitalizationTypeWords;
+        }
+        ((UITextField*)self).autocapitalizationType = autoCapType;
     }
 }
 
