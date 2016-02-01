@@ -10,6 +10,8 @@
 
 @implementation UIColor (hexString)
 
+static NSMutableDictionary *cachedColors;
+
 + (unsigned int)intFromHexString:(NSString *)hexStr
 {
     unsigned int hexInt = 0;
@@ -22,6 +24,9 @@
 
 + (UIColor *)colorFromHex:(NSString *)hexStr
 {
+    if (!cachedColors) cachedColors = [NSMutableDictionary dictionary];
+    id cached = cachedColors[hexStr];
+    if (cached) return cached;
     if (hexStr.length == 4) {
         // I feel like there should be a faster way than this...
         unichar char1 = [hexStr characterAtIndex:1];
@@ -38,7 +43,7 @@
                     green:((CGFloat) ((hexint & 0xFF00) >> 8))/255
                      blue:((CGFloat) (hexint & 0xFF))/255
                     alpha:(hexStr.length >= 8) ? (CGFloat)((hexint & 0xFF000000) >> 24)/255.0f : 1.0f];
-    
+    cachedColors[hexStr] = color;
     return color;
 }
 
