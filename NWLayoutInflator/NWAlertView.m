@@ -24,6 +24,15 @@
     return self;
 }
 
++ (instancetype)alertViewWithLayout:(NSString *)layoutName callback:(NWAlertViewCallback)callback {
+    NWAlertView *alertView = [[NWAlertView alloc] init];
+    alertView.layoutName = layoutName;
+    alertView.delegate = alertView;
+    [alertView setCallback:callback];
+    [alertView parseLayout];
+    return alertView;
+}
+
 - (void)answer:(NSString*)answer {
     if (_callback) {
         _callback(answer);
@@ -41,6 +50,7 @@
 }
 
 - (void)presentIn:(UIView*)parent animated:(BOOL)animated {
+    self.frame = parent.bounds;
     [parent addSubview:self];
     _animated = animated;
     if (animated) {
@@ -49,6 +59,18 @@
             self.alpha = 1;
         }];
     }
+}
+
+- (void)present {
+    [self presentIn:[self topmostWindow] animated:YES];
+}
+
+- (UIWindow *)topmostWindow
+{
+    UIWindow *topWindow = [[[UIApplication sharedApplication].windows sortedArrayUsingComparator:^NSComparisonResult(UIWindow *win1, UIWindow *win2) {
+        return win1.windowLevel - win2.windowLevel;
+    }] lastObject];
+    return topWindow;
 }
 
 @end
