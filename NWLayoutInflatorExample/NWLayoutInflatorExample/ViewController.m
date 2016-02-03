@@ -33,7 +33,7 @@
     _collectionView = [[NWCollectionView alloc] initWithFrame:CGRectMake(0, _layoutView.frame.size.height, self.view.frame.size.width, 300)];
     [self.view addSubview:_collectionView];
     _collectionView.layoutName = @"collection_test";
-    _collectionView.collectionItems = @[@{@"caption": @"number 2"}, @{@"caption": @"testing 1"}, @{@"caption": @"i'm third"}, @{@"caption": @"fourth"}, @{@"caption": @"fifth"}, @{@"caption": @"i'm sixth"}];
+    _collectionView.collectionItems = @[@{@"caption": @"testing 1 2 3 doctor watson can you hear me over here?"}, @{@"caption": @"number 2"}, @{@"caption": @"i'm third"}, @{@"caption": @"fourth is the best. fourth is the best"}, @{@"caption": @"fifth"}, @{@"caption": @"i'm sixth"}, @{@"caption": @"number seven goes here"}, @{@"caption": @"did you know we have at least eight items in this list?"}, @{@"caption" : @"no repeats"}, @{@"caption": @"tenth"}];
     _collectionView.backgroundColor = [UIColor colorWithRed:1.0 green:1.0 blue:0.9 alpha:1.0];
 }
 

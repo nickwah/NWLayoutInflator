@@ -1,3 +1,5 @@
 <NWLayoutView>
-    <UILabel x="10" y="10" right="10" text="{{caption}}" height="120" backgroundColor="#80C0E0F3" />
+    <UIView id="spacer" x="15" y="0" width="1" height="50" backgroundColor="#C0C8F0" />
+    <UILabel id="label" below="spacer" x="20" right="10" text="{{caption}}" numberOfLines="0" sizeToFit="1" backgroundColor="#80C0E0F3" />
+    <UIView below="label" x="16" width="1" height="50" backgroundColor="#DDD080" />
 </NWLayoutView>
