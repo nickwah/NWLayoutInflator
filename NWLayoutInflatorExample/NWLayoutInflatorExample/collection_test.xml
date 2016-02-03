@@ -1,0 +1,3 @@
+<NWLayoutView>
+    <UILabel x="10" y="10" right="10" text="{{caption}}" height="120" backgroundColor="#80C0E0F3" />
+</NWLayoutView>

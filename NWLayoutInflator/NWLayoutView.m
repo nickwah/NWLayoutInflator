@@ -231,7 +231,7 @@ static NSMutableDictionary *_parsedStyles;
 
 - (NSDictionary*)getFinalLayout {
     id cached = _parsedCache[_layoutName];
-    NSDictionary *root;
+    NSDictionary *root = cached;
     if (!cached) {
         NSString *xmlLayout = [NWLayoutView getXMLforName:_layoutName];
         if (!xmlLayout) {
@@ -667,6 +667,7 @@ static Class classFromString(NSString *name) {
 
 - (NSString*)getDictValue:(NSString *)varExpr {
     id value = _dictValues[varExpr];
+    if (value && ([value isKindOfClass:[NSArray class]] || [value isKindOfClass:[NSDictionary class]])) return value;
     if (value && ![value isKindOfClass:[NSString class]]) {
         if ([value isKindOfClass:[NSNull class]]) {
             value = @"";

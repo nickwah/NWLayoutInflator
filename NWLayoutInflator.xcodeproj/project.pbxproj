@@ -25,6 +25,8 @@
 		01D8616D1BF2A66800CB0E8F /* UIGestureRecognizer+Blocks.m in Sources */ = {isa = PBXBuildFile; fileRef = 01D861651BF2A66800CB0E8F /* UIGestureRecognizer+Blocks.m */; };
 		01D8616E1BF2A66800CB0E8F /* UITouchDownGestureRecognizer.h in Headers */ = {isa = PBXBuildFile; fileRef = 01D861661BF2A66800CB0E8F /* UITouchDownGestureRecognizer.h */; };
 		01D8616F1BF2A66800CB0E8F /* UITouchDownGestureRecognizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 01D861671BF2A66800CB0E8F /* UITouchDownGestureRecognizer.m */; };
+		01DC43421C61D23800ADEDEB /* NWCollectionView.h in Headers */ = {isa = PBXBuildFile; fileRef = 01DC43401C61D23800ADEDEB /* NWCollectionView.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		01DC43431C61D23800ADEDEB /* NWCollectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 01DC43411C61D23800ADEDEB /* NWCollectionView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -48,6 +50,8 @@
 		01D861651BF2A66800CB0E8F /* UIGestureRecognizer+Blocks.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIGestureRecognizer+Blocks.m"; sourceTree = "<group>"; };
 		01D861661BF2A66800CB0E8F /* UITouchDownGestureRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UITouchDownGestureRecognizer.h; sourceTree = "<group>"; };
 		01D861671BF2A66800CB0E8F /* UITouchDownGestureRecognizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UITouchDownGestureRecognizer.m; sourceTree = "<group>"; };
+		01DC43401C61D23800ADEDEB /* NWCollectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NWCollectionView.h; sourceTree = "<group>"; };
+		01DC43411C61D23800ADEDEB /* NWCollectionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NWCollectionView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -82,6 +86,8 @@
 		01B34AEB1B71327900995C02 /* NWLayoutInflator */ = {
 			isa = PBXGroup;
 			children = (
+				01DC43401C61D23800ADEDEB /* NWCollectionView.h */,
+				01DC43411C61D23800ADEDEB /* NWCollectionView.m */,
 				010913C11C3EF56D00D516AA /* NWWrappedView.h */,
 				010913C21C3EF56D00D516AA /* NWWrappedView.m */,
 				01D861601BF2A66800CB0E8F /* NWAlertView.h */,
@@ -123,6 +129,7 @@
 				01B34B111B7133B200995C02 /* UIColor+hexString.h in Headers */,
 				01B34AEF1B71327900995C02 /* NWLayoutInflator.h in Headers */,
 				01D861681BF2A66800CB0E8F /* NWAlertView.h in Headers */,
+				01DC43421C61D23800ADEDEB /* NWCollectionView.h in Headers */,
 				01D8616E1BF2A66800CB0E8F /* UITouchDownGestureRecognizer.h in Headers */,
 				010913C31C3EF56D00D516AA /* NWWrappedView.h in Headers */,
 				01D8616C1BF2A66800CB0E8F /* UIGestureRecognizer+Blocks.h in Headers */,
@@ -200,6 +207,7 @@
 			files = (
 				01D861691BF2A66800CB0E8F /* NWAlertView.m in Sources */,
 				01B34B141B7133B200995C02 /* UIView+applyProperty.m in Sources */,
+				01DC43431C61D23800ADEDEB /* NWCollectionView.m in Sources */,
 				01B34B121B7133B200995C02 /* UIColor+hexString.m in Sources */,
 				01B34B101B7133B200995C02 /* NWLayoutView.m in Sources */,
 				01D8616F1BF2A66800CB0E8F /* UITouchDownGestureRecognizer.m in Sources */,
