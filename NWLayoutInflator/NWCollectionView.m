@@ -160,13 +160,11 @@
     NWLayoutView *layoutView = _activeViews[@(row)];
     if (!layoutView) {
         if (_freeViews.count) {
-            NSLog(@"recycling a row");
             layoutView = _freeViews.lastObject;
             [_freeViews removeLastObject];
         } else {
-            layoutView = [[NWLayoutView alloc] initWithLayout:_layoutName andFrame:CGRectMake(0, 0, self.frame.size.width / _numColumns, _estimatedHeight) andDelegate:self];
+            layoutView = [[NWLayoutView alloc] initWithLayout:_layoutName andFrame:CGRectMake(0, 0, self.frame.size.width / _numColumns, _estimatedHeight) andDelegate:self.delegate];
             [_scrollView addSubview:layoutView];
-            NSLog(@"created a row");
         }
         _activeViews[@(row)] = layoutView;
     }
@@ -184,9 +182,13 @@
 }
 
 - (void)setCollectionItems:(NSArray<NSDictionary *> *)collectionItems {
-    _scrollView.contentOffset = CGPointZero;
+    _scrollView.contentOffset = CGPointMake(0, -self.contentInset.top);
     _collectionItems = collectionItems.mutableCopy;
     _savedHeights = [NSMutableArray array];
+    _minRow = 0;
+    _maxRow = 0;
+    [_freeViews addObjectsFromArray:_activeViews.allValues];
+    [_activeViews removeAllObjects];
     [self renderViews];
 }
 
@@ -200,6 +202,14 @@
     if ([items isKindOfClass:[NSArray class]]) {
         self.collectionItems = items;
     }
+}
+
+- (void)setContentInset:(UIEdgeInsets)contentInset {
+    _scrollView.contentInset = contentInset;
+}
+
+- (UIEdgeInsets)contentInset {
+    return _scrollView.contentInset;
 }
 
 @end

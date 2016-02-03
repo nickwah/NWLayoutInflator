@@ -14,5 +14,8 @@
 @property (nonatomic) NSArray<NSDictionary*>* collectionItems;
 @property (nonatomic) CGFloat estimatedHeight;
 @property (nonatomic) int numColumns;
+@property (nonatomic) UIEdgeInsets contentInset;
+
+@property (nonatomic, weak) id delegate;
 
 @end
