@@ -18,4 +18,6 @@
 
 @property (nonatomic, weak) id delegate;
 
+- (void)addCollectionItem:(NSDictionary*)item;
+
 @end
