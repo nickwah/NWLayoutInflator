@@ -58,7 +58,6 @@
     NSMutableArray *row = [NSMutableArray array];
     for (UIView *subview in self.subviews) {
         CGRect frame = subview.frame;
-        maxHeight = fmax(frame.size.height, maxHeight);
         if (x + frame.size.width > width && row.count > 0) {
             [self positionViews:row x:0 y:y];
             y += maxHeight + _spacing;
@@ -66,6 +65,7 @@
             maxHeight = 0;
             [row removeAllObjects];
         }
+        maxHeight = fmax(frame.size.height, maxHeight);
         [row addObject:subview];
         x += frame.size.width + _spacing;
     }
