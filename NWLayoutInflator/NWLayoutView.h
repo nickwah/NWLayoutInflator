@@ -24,6 +24,7 @@
 - (void)addSubview:(UIView *)view withId:(NSString*)name;
 - (void)chooseSegment:(UISegmentedControl*)control;
 - (void)fixContentSize:(UIScrollView*)scrollView;
+- (CGFloat)sizeValue:(NSString*)value forView:(UIView*)view horizontal:(BOOL)horizontal;
 - (NSMutableDictionary*)getFormValues;
 - (NSString*)getDictValue:(NSString*)varExpr;
 - (NSString*)getDictValue:(NSString*)varExpr forNode:(UIView*)node property:(NSString*)property;

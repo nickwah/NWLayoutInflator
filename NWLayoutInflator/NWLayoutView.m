@@ -325,6 +325,9 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal, NWLayoutView*
     }
     return [value floatValue];
 }
+- (CGFloat)sizeValue:(NSString*)value forView:(UIView*)view horizontal:(BOOL)horizontal {
+    return parseValue(value, view, horizontal, self);
+}
 - (void)applyAttributes:(NSDictionary*)attributes To:(UIView*)view layoutOnly:(BOOL)layoutOnly {
     if (attributes[@"class"] || attributes[@"id"]) {
         NSMutableDictionary *classDict = [NSMutableDictionary dictionary];
@@ -347,6 +350,7 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal, NWLayoutView*
     CGFloat top = UNSET;
     CGFloat right = UNSET;
     CGFloat bottom = UNSET;
+    BOOL heightEqualsWidth = NO, widthEqualsHeight = NO;
     UIEdgeInsets margin = UIEdgeInsetsMake(0, 0, 0, 0);
     for (NSString* key in attributes) {
         NSString* value = attributes[key];
@@ -355,9 +359,17 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal, NWLayoutView*
                 _childrenById[value] = view;
                 _attributesById[value] = attributes;
             } else if ([key isEqualToString:@"width"]) {
-                frame.size.width = parseValue(value, view, YES, self);
+                if ([value isEqualToString:@"height"]) {
+                    widthEqualsHeight = YES;
+                } else {
+                    frame.size.width = parseValue(value, view, YES, self);
+                }
             } else if ([key isEqualToString:@"height"]) {
-                frame.size.height = parseValue(value, view, NO, self);
+                if ([value isEqualToString:@"width"]) {
+                    heightEqualsWidth = YES;
+                } else {
+                    frame.size.height = parseValue(value, view, NO, self);
+                }
             } else if ([key isEqualToString:@"x"]) {
                 left = parseValue(value, view, YES, self);
             } else if ([key isEqualToString:@"y"]) {
@@ -406,6 +418,8 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal, NWLayoutView*
             [view applyProperty:key value:value layoutView:self];
         }
     }
+    if (widthEqualsHeight) frame.size.width = frame.size.height;
+    if (heightEqualsWidth) frame.size.height = frame.size.width;
     if (margin.top && top != UNSET)  top += margin.top;
     if (margin.left && left != UNSET) left += margin.left;
     if (margin.bottom && bottom != UNSET) bottom -= margin.bottom;

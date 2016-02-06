@@ -171,7 +171,7 @@ static BOOL isEnabled(NSString* value) {
 
 - (void)apply_cornerRadius:(NSString*)value layoutView:(NWLayoutView*)layoutView {
     self.layer.masksToBounds = YES;
-    self.layer.cornerRadius = [value floatValue];
+    self.layer.cornerRadius = [layoutView sizeValue:value forView:self horizontal:NO];
 }
 
 - (void)apply_clipsToBounds:(NSString*)value layoutView:(NWLayoutView*)layoutView {
