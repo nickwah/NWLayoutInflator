@@ -59,7 +59,7 @@
     CGFloat minY = 0, maxY = 0;
     CGFloat minColY[_numColumns];
     CGFloat maxColY[_numColumns];
-    memset(minColY, -999, sizeof(minColY));
+    for (int i = 0; i < _numColumns; i++) minColY[i] = -999.0;
     memset(maxColY, 0, sizeof(maxColY));
     if (_maxRow > _minRow) {
         minY = _activeViews[@(_minRow)].frame.origin.y;
@@ -102,6 +102,9 @@
         _maxRow++;
     }
     CGFloat minRequiredY = fmax(_scrollView.contentOffset.y - BUFFER, 0);
+    for (int i = 0; i < _numColumns; i++) {
+        minY = fmax(minY, minColY[i]);
+    }
     while (minY > minRequiredY && _minRow > 0) {
         _minRow--;
         NWLayoutView *view = [self viewForRow:_minRow];
