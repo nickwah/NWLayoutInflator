@@ -26,7 +26,7 @@ static CGPoint touchDownLastTouchPoint;
 -(void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event{
     [super touchesMoved:touches withEvent:event];
     CGPoint loc = [touches.anyObject locationInView:self.view];
-    if (fabs(loc.y - touchDownLastTouchPoint.y) + fabs(loc.x - touchDownLastTouchPoint.x) > 10) {
+    if (fabs(loc.y - touchDownLastTouchPoint.y) + fabs(loc.x - touchDownLastTouchPoint.x) > 18) {
         self.state = UIGestureRecognizerStateCancelled;
     }
 }
