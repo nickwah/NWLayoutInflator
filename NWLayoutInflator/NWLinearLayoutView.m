@@ -7,6 +7,7 @@
 //
 
 #import "NWLinearLayoutView.h"
+#import "NWLayoutView.h"
 
 @implementation NWLinearLayoutView {
     CGFloat _width;
@@ -34,10 +35,14 @@
             frame.origin.x = pos;
         }
         view.frame = frame;
-        pos += _vertical ? frame.size.height : frame.size.width;
+        pos += _spacing + (_vertical ? frame.size.height : frame.size.width);
         _width = fmax(_width, CGRectGetMaxX(frame));
         _height = fmax(_height, CGRectGetMaxY(frame));
     }
+}
+
+- (void)apply_spacing:(NSString*)value layoutView:(NWLayoutView*)layoutView {
+    self.spacing = [value floatValue];
 }
 
 @end

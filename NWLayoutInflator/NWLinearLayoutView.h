@@ -10,4 +10,6 @@
 
 @interface NWLinearLayoutView : UIView
 
+@property (nonatomic) CGFloat spacing;
+
 @end
