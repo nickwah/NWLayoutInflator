@@ -182,6 +182,7 @@
         [self renderViews];
         _lastScrollEvent = scrollView.contentOffset.y;
     }
+    if (_collectionDelegate) [_collectionDelegate collectionViewDidScroll:self];
 }
 
 - (void)setCollectionItems:(NSArray<NSDictionary *> *)collectionItems {
@@ -200,10 +201,39 @@
     [self renderViews];
 }
 
+- (void)removeCollectionItemAtIndex:(int)index {
+    [_savedHeights removeObjectsInRange:NSMakeRange(index, _savedHeights.count - index)];
+    for (int i = index; i < _collectionItems.count; i++) {
+        _columnMap[i] = -1;
+        _originMap[i] = CGPointZero;
+    }
+    if (_maxRow > index) {
+        // We have to throw out a view potentially. It's okay, we'll make a new one if needed
+        [_activeViews[@(_maxRow - 1)] removeFromSuperview];
+        [_activeViews removeObjectForKey:@(_maxRow - 1)];
+        _maxRow--;
+        for (int i = _maxRow - 1; i >= index; i--) {
+            NSNumber *key = @(i);
+            NWLayoutView *view = _activeViews[key];
+            [_activeViews removeObjectForKey:key];
+            [_freeViews addObject:view];
+            _maxRow--;
+        }
+    }
+    [_collectionItems removeObjectAtIndex:index];
+    [self renderViews];
+}
+
+- (void)reloadItemAtIndex:(int)index {
+    if (index >= _minRow && index < _maxRow) {
+        [self viewForRow:index];
+    }
+}
+
 // So you can include this whole thing in a layout xml and set the data array via collectionItems="{{ items }}"
 - (void)apply_collectionItems:(id)items layoutView:(NWLayoutView*)layoutView {
     if ([items isKindOfClass:[NSArray class]]) {
-        self.collectionItems = items;
+        self.collectionItems = [items mutableCopy];
     }
 }
 
@@ -213,6 +243,18 @@
 
 - (UIEdgeInsets)contentInset {
     return _scrollView.contentInset;
+}
+
+- (CGPoint)contentOffset {
+    return _scrollView.contentOffset;
+}
+
+- (void)setContentOffset:(CGPoint)contentOffset {
+    _scrollView.contentOffset = contentOffset;
+}
+
+- (CGSize)contentSize {
+    return _scrollView.contentSize;
 }
 
 @end
