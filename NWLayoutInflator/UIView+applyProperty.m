@@ -226,19 +226,23 @@ static BOOL isEnabled(NSString* value) {
     }
     theViewGradient.colors = colors;
     theViewGradient.frame = self.bounds;
-    NSLog(@"applied gradient with colors: %@\nview:%@", colors, self);
+    //NSLog(@"applied gradient with colors: %@\nview:%@", colors, self);
     [self.layer insertSublayer:theViewGradient atIndex:0];
 }
 
 - (void)apply_imageNamed:(NSString*)value layoutView:(NWLayoutView*)layoutView {
     if ([self respondsToSelector:@selector(setImage:)] && value.length) {
         [((UIImageView*)self) setImage:[UIImage imageNamed:value]];
+    } else if ([self respondsToSelector:@selector(setImage:forState:)]) {
+        [((UIButton*)self) setImage:[UIImage imageNamed:value] forState:UIControlStateNormal];
     }
 }
 
 - (void)apply_tintedImageNamed:(NSString*)value layoutView:(NWLayoutView*)layoutView {
     if ([self respondsToSelector:@selector(setImage:)] && value.length) {
         [((UIImageView*)self) setImage:[[UIImage imageNamed:value] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+    } else if ([self respondsToSelector:@selector(setImage:forState:)]) {
+        [((UIButton*)self) setImage:[[UIImage imageNamed:value] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
     }
 }
 
