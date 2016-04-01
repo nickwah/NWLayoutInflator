@@ -67,3 +67,7 @@ Create a file with the suffix `.css`. Normal comments are supported (both /* .. 
 ```
 
 Specify the stylesheet by adding `stylesheet="buttons"` to the NWLayoutView xml statement.
+
+## License
+
+Open source under the MIT license. See LICENSE for details.
