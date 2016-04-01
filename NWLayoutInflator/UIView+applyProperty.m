@@ -170,7 +170,9 @@ static BOOL isEnabled(NSString* value) {
 }
 
 - (void)apply_cornerRadius:(NSString*)value layoutView:(NWLayoutView*)layoutView {
-    self.layer.masksToBounds = YES;
+    if (!self.layer.shadowOpacity) {
+        self.layer.masksToBounds = YES;
+    }
     self.layer.cornerRadius = [layoutView sizeValue:value forView:self horizontal:NO];
 }
 
@@ -251,6 +253,7 @@ static BOOL isEnabled(NSString* value) {
         if ([value hasPrefix:@"//"]) {
             value = [NSString stringWithFormat:@"http:%@", value];
         }
+        ((UIImageView*)self).image = [NWLayoutView placeholderImage];
         [self performSelector:@selector(setImageWithURL:) withObject:[NSURL URLWithString:value]];
     }
 }

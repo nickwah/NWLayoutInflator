@@ -30,6 +30,8 @@
 @property (nonatomic, weak) id<NWCollectionDelegate>collectionDelegate;
 
 - (void)addCollectionItem:(NSDictionary*)item;
+- (void)prependCollectionItem:(NSDictionary*)item;
+- (void)insertCollectionItem:(NSDictionary*)item atIndex:(int)index;
 - (void)reloadItemAtIndex:(int)index;
 - (void)removeCollectionItemAtIndex:(int)index;
 

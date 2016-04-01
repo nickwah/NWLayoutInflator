@@ -10,7 +10,9 @@
 
 typedef void(^NWAlertViewCallback)(NSString*answer);
 
-@interface NWAlertView : NWLayoutView
+@interface NWAlertView : NWLayoutView {
+    BOOL _animated;    
+}
 
 + (instancetype)alertViewWithLayout:(NSString*)layoutName callback:(NWAlertViewCallback)callback;
 
@@ -19,6 +21,8 @@ typedef void(^NWAlertViewCallback)(NSString*answer);
 
 - (void)present;
 - (void)presentIn:(UIView*)parent animated:(BOOL)animated;
+- (UIWindow *)topmostWindow;
 - (void)answer:(NSString*)answer;
+- (void)dismiss;
 
 @end

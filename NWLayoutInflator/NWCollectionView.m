@@ -115,7 +115,9 @@
         for (int i = 0; i < _numColumns; i++) {
             minY = fmax(minY, minColY[i]);
         }
-        frame.size.height = _savedHeights[_minRow].floatValue;
+        if (_savedHeights.count > _minRow) {
+            frame.size.height = _savedHeights[_minRow].floatValue;
+        }
         view.frame = frame;
     }
     CGFloat totalHeight = 0;
@@ -123,7 +125,7 @@
     for (int i = 0; i < _numColumns; i++) totalHeight = fmax(totalHeight, maxColY[i]);
     totalHeight += _estimatedHeight * (_collectionItems.count - _savedHeights.count) / _numColumns;
     if (_scrollView.contentSize.height != totalHeight) {
-        _scrollView.contentSize = CGSizeMake(self.frame.size.width, totalHeight);
+        _scrollView.contentSize = CGSizeMake(self.frame.size.width, MAX(self.frame.size.height - self.contentInset.top - self.contentInset.bottom, totalHeight));
     }
 }
 
@@ -177,12 +179,21 @@
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    [UIView setAnimationsEnabled:NO];
     if (fabs(_lastScrollEvent - scrollView.contentOffset.y) > SCROLL_THRESHOLD) {
+        if (_lastScrollEvent - scrollView.contentOffset.y > 200) {
+            // Um, better reset and re-render from top
+            _maxRow = 0;
+            _minRow = 0;
+            [_freeViews addObjectsFromArray:_activeViews.allValues];
+            [_activeViews removeAllObjects];
+        }
         [self recycleViews];
         [self renderViews];
         _lastScrollEvent = scrollView.contentOffset.y;
     }
     if (_collectionDelegate) [_collectionDelegate collectionViewDidScroll:self];
+    [UIView setAnimationsEnabled:YES];
 }
 
 - (void)setCollectionItems:(NSArray<NSDictionary *> *)collectionItems {
@@ -201,6 +212,27 @@
     [self renderViews];
 }
 
+- (void)prependCollectionItem:(NSDictionary *)item {
+    [self insertCollectionItem:item atIndex:0];
+}
+
+- (void)insertCollectionItem:(NSDictionary *)item atIndex:(int)index {
+    // TODO: this only supports index = 1 or index = 0, really
+    _scrollView.contentOffset = CGPointMake(0, -self.contentInset.top);
+    [_collectionItems insertObject:item atIndex:index];
+    _savedHeights = [NSMutableArray array];
+    
+    memset(_columnMap, -1, TOTAL_ROW_LIMIT);
+    for (int i = index; i < _collectionItems.count; i++) {
+        _originMap[i] = CGPointZero;
+    }
+    _maxRow = 0;
+    _minRow = 0;
+    [_freeViews addObjectsFromArray:_activeViews.allValues];
+    [_activeViews removeAllObjects];
+    [self renderViews];
+}
+
 - (void)removeCollectionItemAtIndex:(int)index {
     [_savedHeights removeObjectsInRange:NSMakeRange(index, _savedHeights.count - index)];
     for (int i = index; i < _collectionItems.count; i++) {
@@ -212,11 +244,13 @@
         [_activeViews[@(_maxRow - 1)] removeFromSuperview];
         [_activeViews removeObjectForKey:@(_maxRow - 1)];
         _maxRow--;
-        for (int i = _maxRow - 1; i >= index; i--) {
+        for (int i = _maxRow - 1; i >= index && i >= _minRow; i--) {
             NSNumber *key = @(i);
             NWLayoutView *view = _activeViews[key];
-            [_activeViews removeObjectForKey:key];
-            [_freeViews addObject:view];
+            if (view) {
+                [_activeViews removeObjectForKey:key];
+                [_freeViews addObject:view];
+            }
             _maxRow--;
         }
     }

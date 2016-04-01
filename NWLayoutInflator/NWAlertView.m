@@ -10,7 +10,6 @@
 
 @implementation NWAlertView {
     NWAlertViewCallback _callback;
-    BOOL _animated;
 }
 
 - (void)setCallback:(NWAlertViewCallback)callback {
@@ -25,7 +24,7 @@
 }
 
 + (instancetype)alertViewWithLayout:(NSString *)layoutName callback:(NWAlertViewCallback)callback {
-    NWAlertView *alertView = [[NWAlertView alloc] init];
+    NWAlertView *alertView = [[self alloc] init];
     alertView.layoutName = layoutName;
     alertView.delegate = alertView;
     [alertView setCallback:callback];
@@ -38,6 +37,10 @@
         _callback(answer);
         _callback = 0;
     }
+    [self dismiss];
+}
+
+- (void)dismiss {
     if (_animated) {
         [UIView animateWithDuration:0.2 animations:^{
             self.alpha = 0;

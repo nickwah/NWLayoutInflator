@@ -17,6 +17,8 @@ static NSSet *_layoutKeys;
 static NSMutableDictionary *_namedColors;
 static NSMutableDictionary *_parsedStyles;
 
+#define DEGREES_TO_RADIANS 0.017453292519943295
+
 @implementation NWLayoutView {
     NSMutableDictionary *_childrenById; // NSString -> UIView
     NSMutableDictionary *_attributesById; // NSString -> NSDictionary
@@ -46,7 +48,7 @@ static NSMutableDictionary *_parsedStyles;
         _parsedCache = [NSMutableDictionary dictionary];
     }
     if (!_layoutKeys) {
-        _layoutKeys = [NSSet setWithObjects:@"id", @"width", @"height", @"x", @"y", @"alignLeft", @"alignTop", @"margin", @"marginLeft", @"marginTop", @"marginRight", @"marginBottom", @"above", @"below", @"bottom", @"right", @"toLeftOf", @"toRightOf", @"alignRight", @"alignBottom", @"minHeight", @"minWidth", nil];
+        _layoutKeys = [NSSet setWithObjects:@"id", @"width", @"height", @"x", @"y", @"alignLeft", @"alignTop", @"margin", @"marginLeft", @"marginTop", @"marginRight", @"marginBottom", @"above", @"below", @"bottom", @"right", @"toLeftOf", @"toRightOf", @"alignRight", @"alignBottom", @"minHeight", @"minWidth", @"maxHeight", @"maxWidth", nil];
     }
     if (!_parsedStyles) _parsedStyles = [NSMutableDictionary dictionary];
     if (!_namedColors[@"white"]) [NWLayoutView setColor:[UIColor whiteColor] forName:@"white"];
@@ -296,9 +298,19 @@ static NSMutableDictionary *_parsedStyles;
             [_allNodes addObject:@{@"nodeName": node.nodeNameNW, @"view": child, @"attributes": attrs ?: @{}, @"children": @(childNodes.count), @"last": @(i == numNodes - 1)}];
             if (childNodes.count) {
                 [self createAndAddChildNodes:childNodes To:child];
-                if (node.attributesNW[@"sizeToFit"]) {
+                if (attrs[@"sizeToFit"]) {
                     [self sizeViewToFit:child];
+                    int j = 0;
+                    for (NSDictionary *subNode in childNodes) {
+                        if (subNode.attributesNW[@"sizedToParent"]) {
+                            [self applyAttributes:subNode To:child.subviews[j] layoutOnly:YES];
+                        }
+                        j++;
+                    }
                 }
+            }
+            if (attrs[@"sizedToParent"]) {
+                child.tag = -999;
             }
             if ([node.nodeNameNW isEqualToString:@"UIScrollView"]) {
                 [self fixContentSize:(UIScrollView*)child];
@@ -352,6 +364,7 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal, NWLayoutView*
     CGFloat bottom = UNSET;
     BOOL heightEqualsWidth = NO, widthEqualsHeight = NO;
     UIEdgeInsets margin = UIEdgeInsetsMake(0, 0, 0, 0);
+    view.transform = CGAffineTransformIdentity;
     for (NSString* key in attributes) {
         NSString* value = attributes[key];
         if ([_layoutKeys containsObject:key]) {
@@ -382,7 +395,7 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal, NWLayoutView*
                 top = other.frame.origin.y;
             } else if ([key isEqualToString:@"below"]) {
                 UIView *other = _childrenById[value];
-                top = other.frame.origin.y + other.frame.size.height;
+                top = other.frame.origin.y + (other.hidden ? 0 : other.frame.size.height);
             } else if ([key isEqualToString:@"above"]) {
                 UIView *other = _childrenById[value];
                 bottom = other.frame.origin.y;
@@ -418,8 +431,6 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal, NWLayoutView*
             [view applyProperty:key value:value layoutView:self];
         }
     }
-    if (widthEqualsHeight) frame.size.width = frame.size.height;
-    if (heightEqualsWidth) frame.size.height = frame.size.width;
     if (margin.top && top != UNSET)  top += margin.top;
     if (margin.left && left != UNSET) left += margin.left;
     if (margin.bottom && bottom != UNSET) bottom -= margin.bottom;
@@ -428,6 +439,8 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal, NWLayoutView*
     if (top != UNSET && bottom != UNSET && !frame.size.height) frame.size.height = bottom - top;
     if (left != UNSET) frame.origin.x = left;
     if (top != UNSET) frame.origin.y = top;
+    if (widthEqualsHeight) frame.size.width = frame.size.height;
+    if (heightEqualsWidth) frame.size.height = frame.size.width;
     view.frame = frame;
     if (attributes[@"sizeToFit"]) {
         CGSize origSize = frame.size;
@@ -439,8 +452,14 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal, NWLayoutView*
     if (attributes[@"minHeight"]) {
         frame.size.height = fmax(frame.size.height, parseValue(attributes[@"minHeight"], view, NO, self));
     }
+    if (attributes[@"maxHeight"]) {
+        frame.size.height = fmin(frame.size.height, parseValue(attributes[@"maxHeight"], view, NO, self));
+    }
     if (attributes[@"minWidth"]) {
         frame.size.width = fmax(frame.size.width, parseValue(attributes[@"minWidth"], view, YES, self));
+    }
+    if (attributes[@"maxWidth"]) {
+        frame.size.width = fmin(frame.size.width, parseValue(attributes[@"maxWidth"], view, YES, self));
     }
     if (right != UNSET && left == UNSET) frame.origin.x = right - frame.size.width;
     if (bottom != UNSET && top == UNSET) frame.origin.y = bottom - frame.size.height;
@@ -461,6 +480,24 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal, NWLayoutView*
                 layer.frame = view.bounds;
             }
         }
+    }
+    if (attributes[@"transform"]) {
+        NSArray *transforms = [attributes[@"transform"] componentsSeparatedByString:@";"];
+        CGAffineTransform finalTrans = CGAffineTransformIdentity;
+        for (NSString *transform in transforms) {
+            NSArray *kvPair = [transform componentsSeparatedByString:@":"];
+            NSArray *values = [kvPair[1] componentsSeparatedByString:@","];
+            // TODO: handle multiple values for scale, translate
+            if ([kvPair[0] isEqualToString:@"rotation"]) {
+                CGFloat angle = parseValue(values[0], view, YES, self);
+                finalTrans = CGAffineTransformRotate(finalTrans, angle * DEGREES_TO_RADIANS);
+            } else if ([kvPair[0] isEqualToString:@"scale"] && values.count == 2) {
+                CGFloat x = parseValue(values[0], view, YES, self);
+                CGFloat y = parseValue(values[1], view, YES, self);
+                finalTrans = CGAffineTransformScale(finalTrans, x, y);
+            }
+        }
+        view.transform = finalTrans;
     }
 }
 
@@ -488,6 +525,12 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal, NWLayoutView*
     }
 }
 
+- (void)setOrigin:(CGPoint)origin {
+    CGRect frame = self.frame;
+    frame.origin = origin;
+    [super setFrame:frame];
+}
+
 - (void)sizeViewToFit:(UIView *)view {
     [self sizeViewToFit:view forceHeight:NO];
 }
@@ -509,7 +552,7 @@ CGFloat parseValue(NSString* value, UIView* view, BOOL horizontal, NWLayoutView*
     }
     CGFloat maxX = 0, maxY = 0;
     for (UIView* subview in view.subviews) {
-        if (subview.hidden) continue;
+        if (subview.hidden || subview.tag == -999) continue;
         maxX = fmaxf(maxX, CGRectGetMaxX(subview.frame));
         maxY = fmaxf(maxY, CGRectGetMaxY(subview.frame));
     }
@@ -719,6 +762,14 @@ static Class classFromString(NSString *name) {
             [node applyProperty:valueKey value:value layoutView:self];
         }
     }
+}
+
++ (_Nullable NWLayoutView *)layoutViewForView:(UIView*)view {
+    Class nwClass = [NWLayoutView class];
+    while (view && ![view isKindOfClass:nwClass]) {
+        view = view.superview;
+    }
+    return (NWLayoutView*)view;
 }
 
 @end

@@ -30,6 +30,7 @@
 - (NSString*)getDictValue:(NSString*)varExpr forNode:(UIView*)node property:(NSString*)property;
 // Note that you should re-layout (view.frame = view.frame will do this) after changing any text or size properties
 - (void)setDictValue:(NSString*)value forKey:(NSString*)key;
+- (void)setOrigin:(CGPoint)origin;
 
 + (void)setXML:(NSString*)xml forName:(NSString*)name;
 + (void)revertXMLforName:(NSString*)name;
@@ -39,5 +40,6 @@
 + (void)setColor:(UIColor*)color forName:(NSString*)name;
 + (void)addColorsFromDictionary:(NSDictionary*)colors; // NSString -> NSString of hex color
 + (void)precacheLayout:(NSString*)layoutName;
++ (NWLayoutView*)layoutViewForView:(UIView*)view;
 
 @end
