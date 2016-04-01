@@ -10,7 +10,6 @@
 #import "NWLayoutView.h"
 
 @interface NWCollectionView()<UIScrollViewDelegate>
-
 @end
 
 #define BUFFER 30

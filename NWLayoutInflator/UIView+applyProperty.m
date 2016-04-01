@@ -253,7 +253,6 @@ static BOOL isEnabled(NSString* value) {
         if ([value hasPrefix:@"//"]) {
             value = [NSString stringWithFormat:@"http:%@", value];
         }
-        ((UIImageView*)self).image = [NWLayoutView placeholderImage];
         [self performSelector:@selector(setImageWithURL:) withObject:[NSURL URLWithString:value]];
     }
 }

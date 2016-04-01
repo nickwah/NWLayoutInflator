@@ -19,7 +19,7 @@
 @interface NWCollectionView : UIView
 
 @property (nonatomic) NSString* layoutName;
-@property (nonatomic) NSMutableArray<NSDictionary*>* collectionItems;
+@property (nonatomic) NSArray<NSDictionary*>* collectionItems;
 @property (nonatomic) CGFloat estimatedHeight;
 @property (nonatomic) int numColumns;
 @property (nonatomic) UIEdgeInsets contentInset;
