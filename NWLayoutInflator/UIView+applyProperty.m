@@ -270,7 +270,9 @@ static BOOL isEnabled(NSString* value) {
 }
 
 - (void)apply_contentMode:(NSString*)value layoutView:(NWLayoutView*)layoutView {
-    if ([self respondsToSelector:@selector(setContentMode:)]) {
+    id obj = self;
+    if ([self isKindOfClass:[UIButton class]]) obj = ((UIButton*)self).imageView;
+    if ([obj respondsToSelector:@selector(setContentMode:)]) {
         value = [value lowercaseString];
         UIViewContentMode contentMode = self.contentMode;
         if ([value isEqualToString:@"scaletofill"]) contentMode = UIViewContentModeScaleToFill;
@@ -286,7 +288,26 @@ static BOOL isEnabled(NSString* value) {
         else if ([value isEqualToString:@"topright"]) contentMode = UIViewContentModeTopRight;
         else if ([value isEqualToString:@"bottomleft"]) contentMode = UIViewContentModeBottomLeft;
         else if ([value isEqualToString:@"bottomright"]) contentMode = UIViewContentModeBottomRight;
-        self.contentMode = contentMode;
+        [obj setContentMode:contentMode];
+    }
+}
+
+- (void)apply_contentEdgeInsets:(NSString*)value layoutView:(NWLayoutView*)layoutView {
+    if ([self respondsToSelector:@selector(setContentEdgeInsets:)]) {
+        CGFloat top = 0, left = 0, bottom = 0, right = 0;
+        NSArray *parts = [value componentsSeparatedByString:@","];
+        if (parts.count == 1) {
+            top = left = bottom = right = [value floatValue];
+        } else if (parts.count == 2) {
+            top = bottom = [parts[0] floatValue];
+            left = right = [parts[1] floatValue];
+        } else if (parts.count == 4) {
+            top = [parts[0] floatValue];
+            left = [parts[1] floatValue];
+            bottom = [parts[2] floatValue];
+            right = [parts[3] floatValue];
+        }
+        [(UIButton*)self setContentEdgeInsets:UIEdgeInsetsMake(top, left, bottom, right)];
     }
 }
 
